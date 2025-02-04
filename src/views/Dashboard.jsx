@@ -7,7 +7,7 @@ import {
   Settings,
   Menu,
   X,
-  LogOut
+  LogOut,
 } from 'lucide-react';
 import FormProducts from '../components/Products/FormProducts/FormProducts';
 import ProductsTable from '../components/Products/AllProduct/ProductTable';
@@ -21,7 +21,7 @@ const Dashboard = () => {
     { id: 'pedidos', icon: ShoppingCart, label: 'Pedidos' },
     { id: 'productos', icon: Package, label: 'Productos' },
     { id: 'usuarios', icon: Users, label: 'Usuarios' },
-    { id: 'configuracion', icon: Settings, label: 'Configuración' }
+    { id: 'configuracion', icon: Settings, label: 'Configuración' },
   ];
 
   const handleLogout = () => {
@@ -79,7 +79,7 @@ const Dashboard = () => {
       <aside
         className={`${
           isSidebarOpen ? 'w-64' : 'w-20'
-        } bg-white h-screen transition-all duration-300 shadow-lg flex flex-col justify-between`}
+        } bg-white h-screen transition-all duration-300 shadow-lg flex flex-col justify-between fixed`} // Fijar el sidebar
       >
         <div>
           {/* Sidebar Toggle & Title */}
@@ -131,7 +131,11 @@ const Dashboard = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
+      <main
+        className={`flex-1 overflow-y-auto transition-all duration-300 ${
+          isSidebarOpen ? 'ml-64' : 'ml-20'
+        }`} // Ajustar el margen izquierdo según el estado del sidebar
+      >
         <ViewContent />
       </main>
     </div>

@@ -1,0 +1,409 @@
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useMutation } from '@tanstack/react-query';
+import { 
+  Package, 
+  MapPin, 
+  User, 
+  CheckCircle2, 
+  ArrowRight, 
+  ArrowLeft, 
+  XCircle 
+} from 'lucide-react';
+import { postOrder } from '../../../../api/apiCart'; // Asumiendo que importas la función de postOrder desde otro archivo
+
+const CheckoutForm = ({ cart, onClose }) => {
+  const [formStep, setFormStep] = useState(1);
+  const { 
+    register, 
+    handleSubmit, 
+    formState: { errors }, 
+    watch,
+    trigger 
+  } = useForm({
+    mode: 'onChange',
+    defaultValues: {
+      personalInfo: {
+        nombre: '',
+        email: '',
+        telefono: '',
+      },
+      shippingInfo: {
+        direccion: '',
+        ciudad: '',
+        codigoPostal: '',
+        notasAdicionales: ''
+      }
+    }
+  });
+
+  // Mutation para enviar la orden
+  const submitOrderMutation = useMutation({
+    mutationFn: postOrder,
+    onSuccess: (data) => {
+      // Manejar éxito
+      alert('Pedido creado exitosamente');
+      onClose();
+    },
+    onError: (error) => {
+      // Manejar error
+      alert('Error al crear el pedido');
+      console.error(error);
+    }
+  });
+
+  // Valores actuales del formulario
+  const watchPersonalInfo = watch('personalInfo');
+  const watchShippingInfo = watch('shippingInfo');
+
+  // Estilos reutilizables
+  const inputClasses = "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200 transition-all duration-300";
+  const labelClasses = "block text-sm font-medium text-gray-700 flex items-center";
+
+  // Función para avanzar al siguiente paso
+  const nextStep = async () => {
+    let isValid = false;
+
+    switch(formStep) {
+      case 1:
+        isValid = await trigger('personalInfo');
+        if (isValid) setFormStep(2);
+        break;
+      case 2:
+        isValid = await trigger('shippingInfo');
+        if (isValid) setFormStep(3);
+        break;
+    }
+  };
+
+  // Función para retroceder al paso anterior
+  const prevStep = () => {
+    setFormStep(formStep - 1);
+  };
+
+  // Función de envío final
+  const onFinalSubmit = (data) => {
+    const pedidoData = {
+      ...data.personalInfo,
+      ...data.shippingInfo,
+      productos: cart.map(item => ({
+        productoId: item._id,
+        cantidad: item.quantity,
+        nombre: item.nombre,
+        precio: item.precio
+      })),
+      total: cart.reduce((total, item) => total + (item.precio * item.quantity), 0),
+      estado: 'pendiente',
+      estadoPedido: 'armando'
+    };
+
+    // Enviar pedido usando la mutación
+    submitOrderMutation.mutate(pedidoData);
+  };
+
+  // Renderizar paso de información personal
+  const renderPersonalInfoStep = () => (
+      <div className="space-y-6">
+        <div>
+          <label className={labelClasses}>
+            <User className="mr-2 text-indigo-500" size={20} />
+            Nombre Completo
+          </label>
+          <input
+            {...register('personalInfo.nombre', { 
+              required: 'El nombre es obligatorio',
+              minLength: { value: 2, message: 'Nombre muy corto' }
+            })}
+            className={inputClasses}
+            placeholder="Nombre Completo"
+          />
+          {errors.personalInfo?.nombre && (
+            <p className="text-red-500 text-sm mt-1 flex items-center">
+              <XCircle className="mr-2" size={16} />
+              {errors.personalInfo.nombre.message}
+            </p>
+          )}
+        </div>
+  
+        <div>
+          <label className={labelClasses}>
+            <Package className="mr-2 text-indigo-500" size={20} />
+            Email
+          </label>
+          <input
+            type="email"
+            {...register('personalInfo.email', { 
+              required: 'Email es obligatorio',
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: "Email inválido"
+              }
+            })}
+            className={inputClasses}
+            placeholder="tu-email@ejemplo.com"
+          />
+          {errors.personalInfo?.email && (
+            <p className="text-red-500 text-sm mt-1 flex items-center">
+              <XCircle className="mr-2" size={16} />
+              {errors.personalInfo.email.message}
+            </p>
+          )}
+        </div>
+  
+        <div>
+          <label className={labelClasses}>
+            <MapPin className="mr-2 text-indigo-500" size={20} />
+            Teléfono
+          </label>
+          <input
+            type="tel"
+            {...register('personalInfo.telefono', { 
+              required: 'Teléfono es obligatorio',
+              pattern: {
+                value: /^[0-9]{10}$/,
+                message: "Teléfono debe tener 10 dígitos"
+              }
+            })}
+            className={inputClasses}
+            placeholder="5512345678"
+          />
+          {errors.personalInfo?.telefono && (
+            <p className="text-red-500 text-sm mt-1 flex items-center">
+              <XCircle className="mr-2" size={16} />
+              {errors.personalInfo.telefono.message}
+            </p>
+          )}
+        </div>
+  
+        <div className="flex justify-end mt-6">
+          <button 
+            type="button" 
+            onClick={nextStep} 
+            className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center"
+          >
+            Siguiente <ArrowRight className="ml-2" size={20} />
+          </button>
+        </div>
+      </div>
+    );
+  
+
+  // Renderizar paso de información de envío
+  const renderShippingInfoStep = () => (
+      <div className="space-y-6">
+        <div>
+          <label className={labelClasses}>
+            <MapPin className="mr-2 text-indigo-500" size={20} />
+            Dirección
+          </label>
+          <textarea
+            {...register('shippingInfo.direccion', { 
+              required: 'Dirección es obligatoria',
+              minLength: { value: 5, message: 'Dirección muy corta' }
+            })}
+            rows={3}
+            className={inputClasses}
+            placeholder="Calle, Número, Colonia"
+          />
+          {errors.shippingInfo?.direccion && (
+            <p className="text-red-500 text-sm mt-1 flex items-center">
+              <XCircle className="mr-2" size={16} />
+              {errors.shippingInfo.direccion.message}
+            </p>
+          )}
+        </div>
+  
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelClasses}>
+              <MapPin className="mr-2 text-indigo-500" size={20} />
+              Ciudad
+            </label>
+            <input
+              {...register('shippingInfo.ciudad', { 
+                required: 'Ciudad es obligatoria'
+              })}
+              className={inputClasses}
+              placeholder="Nombre de la ciudad"
+            />
+            {errors.shippingInfo?.ciudad && (
+              <p className="text-red-500 text-sm mt-1 flex items-center">
+                <XCircle className="mr-2" size={16} />
+                {errors.shippingInfo.ciudad.message}
+              </p>
+            )}
+          </div>
+          <div>
+            <label className={labelClasses}>
+              <Package className="mr-2 text-indigo-500" size={20} />
+              Código Postal
+            </label>
+            <input
+              {...register('shippingInfo.codigoPostal', { 
+                required: 'Código Postal es obligatorio',
+                pattern: {
+                  value: /^[0-9]{5}$/,
+                  message: "Código Postal inválido"
+                }
+              })}
+              className={inputClasses}
+              placeholder="Código Postal"
+            />
+            {errors.shippingInfo?.codigoPostal && (
+              <p className="text-red-500 text-sm mt-1 flex items-center">
+                <XCircle className="mr-2" size={16} />
+                {errors.shippingInfo.codigoPostal.message}
+              </p>
+            )}
+          </div>
+        </div>
+  
+        <div>
+          <label className={labelClasses}>
+            <Package className="mr-2 text-indigo-500" size={20} />
+            Notas Adicionales (Opcional)
+          </label>
+          <textarea
+            {...register('shippingInfo.notasAdicionales')}
+            rows={2}
+            className={inputClasses}
+            placeholder="Instrucciones especiales de entrega"
+          />
+        </div>
+  
+        <div className="flex justify-between mt-6">
+          <button 
+            type="button" 
+            onClick={prevStep} 
+            className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors flex items-center"
+          >
+            <ArrowLeft className="mr-2" size={20} /> Anterior
+          </button>
+          <button 
+            type="button" 
+            onClick={nextStep} 
+            className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center"
+          >
+            Siguiente <ArrowRight className="ml-2" size={20} />
+          </button>
+        </div>
+      </div>
+    );
+
+  // Renderizar paso de revisión y confirmación
+  const renderReviewStep = () => {
+    const total = cart.reduce((total, item) => total + (item.precio * item.quantity), 0);
+
+    return (
+      <div className="space-y-6">
+        {/* Resumen de información personal */}
+        {/* Resumen de información de envío */}
+        {/* Resumen de productos */}
+        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
+                  <h3 className="text-lg font-semibold mb-3 flex items-center text-indigo-600">
+                    <User className="mr-2" size={20} /> Información Personal
+                  </h3>
+                  <div className="space-y-1">
+                    <p><strong>Nombre:</strong> {watchPersonalInfo.nombre}</p>
+                    <p><strong>Email:</strong> {watchPersonalInfo.email}</p>
+                    <p><strong>Teléfono:</strong> {watchPersonalInfo.telefono}</p>
+                  </div>
+                </div>
+        
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
+                  <h3 className="text-lg font-semibold mb-3 flex items-center text-indigo-600">
+                    <MapPin className="mr-2" size={20} /> Información de Envío
+                  </h3>
+                  <div className="space-y-1">
+                    <p><strong>Dirección:</strong> {watchShippingInfo.direccion}</p>
+                    <p><strong>Ciudad:</strong> {watchShippingInfo.ciudad}</p>
+                    <p><strong>Código Postal:</strong> {watchShippingInfo.codigoPostal}</p>
+                    {watchShippingInfo.notasAdicionales && (
+                      <p><strong>Notas Adicionales:</strong> {watchShippingInfo.notasAdicionales}</p>
+                    )}
+                  </div>
+                </div>
+        
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
+                  <h3 className="text-lg font-semibold mb-3 flex items-center text-indigo-600">
+                    <Package className="mr-2" size={20} /> Resumen de Productos
+                  </h3>
+                  {cart.map(item => (
+                    <div key={item._id} className="flex justify-between py-2 border-b border-gray-200 last:border-b-0">
+                      <span>{item.nombre}</span>
+                      <span>
+                        {item.quantity} x ${item.precio.toFixed(2)}
+                      </span>
+                    </div>
+                  ))}
+                  <div className="flex justify-between font-bold mt-4 text-indigo-600">
+                    <span>Total:</span>
+                    <span>${total.toFixed(2)}</span>
+                  </div>
+                </div>
+
+        <div className="flex justify-between mt-6">
+          <button 
+            type="button" 
+            onClick={prevStep} 
+            className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors flex items-center"
+          >
+            <ArrowLeft className="mr-2" size={20} /> Anterior
+          </button>
+          <button 
+            type="button" 
+            onClick={handleSubmit(onFinalSubmit)}
+            disabled={submitOrderMutation.isPending}
+            className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center disabled:opacity-50"
+          >
+            {submitOrderMutation.isPending ? 'Enviando...' : 'Confirmar Pedido'}
+            <CheckCircle2 className="ml-2" size={20} />
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="fixed inset-0 bg-gradient-to-br from-indigo-100 via-white to-indigo-100 z-50 flex justify-center items-center p-4 overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-auto p-6 border border-gray-200">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-indigo-700 flex items-center">
+            {formStep === 1 && <User className="mr-3" size={24} />}
+            {formStep === 2 && <MapPin className="mr-3" size={24} />}
+            {formStep === 3 && <Package className="mr-3" size={24} />}
+            {formStep === 1 && "Información Personal"}
+            {formStep === 2 && "Información de Envío"}
+            {formStep === 3 && "Revisar Pedido"}
+          </h2>
+          <button 
+            onClick={onClose} 
+            className="text-gray-500 hover:text-indigo-600 transition-colors rounded-full p-1 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+          >
+            <XCircle size={28} />
+          </button>
+        </div>
+
+        {formStep === 1 && renderPersonalInfoStep()}
+        {formStep === 2 && renderShippingInfoStep()}
+        {formStep === 3 && renderReviewStep()}
+
+        {/* Indicador de progreso */}
+        <div className="flex justify-center mt-4 space-x-2">
+          {[1, 2, 3].map(step => (
+            <div 
+              key={step} 
+              className={`h-2 w-2 rounded-full transition-colors duration-300 ${
+                formStep === step 
+                  ? 'bg-indigo-600 w-6' 
+                  : 'bg-gray-300 w-2'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CheckoutForm;

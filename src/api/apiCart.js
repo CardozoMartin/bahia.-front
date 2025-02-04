@@ -8,6 +8,15 @@ const api = axios.create({
         'Content-Type': 'application/json',
     },
 });
+export const postOrder = async (data) => {
+    try {
+        const response = await api.post(`${API_URL}/carts`, data);
+        return response.data;
+    } catch (error) {
+        console.error('Error al crear el pedido:', error);
+        throw error;
+    }
+};
 
 export const getOrders = async () => {
     try {

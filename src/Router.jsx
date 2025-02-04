@@ -18,6 +18,7 @@ const Router = () => {
                     
                     <Route exact path="/dashboard" element={<Dashboard></Dashboard>} />
                     <Route exact path="/" element={<HomePage></HomePage>} />
+                    
 
 
 
