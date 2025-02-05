@@ -4,6 +4,8 @@ import ProductCars from '../components/Products/Cards/ProductCars';
 import Footer from '../components/common/Footer';
 import ShoppingCarts from '../components/Products/Carts/ShoppingCarts';
 import CheckoutForm from '../components/Products/Carts/FormCarts/CheckoutForm';
+import HeroCarousel from '../components/Products/Carrusel/HeroCarousel';
+import PromotionalCarousel from '../components/Products/FormProducts/PromotionalCarousel';
 
 const HomePage = () => {
   const [cart, setCart] = useState([]);
@@ -78,7 +80,57 @@ const HomePage = () => {
       alert('Hubo un problema al procesar tu pedido');
     }
   };
-
+  const promotionalProducts = [
+    {
+      _id: 'promo1',
+      name: 'Producto en Oferta 1',
+      originalPrice: 99.99,
+      price: 79.99,
+      discountPercentage: 20,
+      image: '/path-to-image-1.jpg'
+    },
+    {
+      _id: 'promo6',
+      name: 'Producto en Oferta 6',
+      originalPrice: 99.99,
+      price: 79.99,
+      discountPercentage: 20,
+      image: '/path-to-image-1.jpg'
+    },
+    {
+      _id: 'promo5',
+      name: 'Producto en Oferta 5',
+      originalPrice: 99.99,
+      price: 79.99,
+      discountPercentage: 20,
+      image: '/path-to-image-1.jpg'
+    },
+    {
+      _id: 'promo4',
+      name: 'Producto en Oferta 4',
+      originalPrice: 99.99,
+      price: 79.99,
+      discountPercentage: 20,
+      image: '/path-to-image-1.jpg'
+    },
+    {
+      _id: 'promo2',
+      name: 'Producto en Oferta 3',
+      originalPrice: 99.99,
+      price: 79.99,
+      discountPercentage: 20,
+      image: '/path-to-image-1.jpg'
+    },
+    {
+      _id: 'promo3',
+      name: 'Producto en Oferta 2',
+      originalPrice: 99.99,
+      price: 79.99,
+      discountPercentage: 20,
+      image: '/path-to-image-1.jpg'
+    },
+    // Add more promotional products...
+  ];
   return (
     <>
       <Navbar
@@ -105,7 +157,12 @@ const HomePage = () => {
           onSubmit={handleOrderSubmit}
         />
       )}
+      <HeroCarousel></HeroCarousel>
 
+      <PromotionalCarousel 
+        promotionalProducts={promotionalProducts}
+        addToCart={addToCart}
+      />
       <ProductCars addToCart={addToCart} />
       <Footer />
     </>

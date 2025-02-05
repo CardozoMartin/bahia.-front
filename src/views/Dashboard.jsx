@@ -22,6 +22,10 @@ const Dashboard = () => {
     { id: 'productos', icon: Package, label: 'Productos' },
     { id: 'usuarios', icon: Users, label: 'Usuarios' },
     { id: 'configuracion', icon: Settings, label: 'Configuración' },
+    { id: 'promociones', icon: Settings, label: 'Promocion' },
+    { id: 'banners', icon: Settings, label: 'Banners' },
+
+
   ];
 
   const handleLogout = () => {
