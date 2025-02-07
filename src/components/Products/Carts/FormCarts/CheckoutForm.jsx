@@ -237,14 +237,14 @@ const CheckoutForm = ({ cart, onClose }) => {
               <p className="font-medium">{watchPersonalInfo.nombre}</p>
             </div>
             <div>
-              <p className="text-gray-500">Email:</p>
-              <p className="font-medium">{watchPersonalInfo.email}</p>
-            </div>
-            <div>
               <p className="text-gray-500">Teléfono:</p>
               <p className="font-medium">{watchPersonalInfo.telefono}</p>
             </div>
           </div>
+            <div>
+              <p className="text-gray-500">Email:</p>
+              <p className="font-medium">{watchPersonalInfo.email}</p>
+            </div>
         </div>
 
         <div className="bg-gray-50 p-4 rounded-lg">

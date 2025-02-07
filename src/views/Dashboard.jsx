@@ -12,6 +12,7 @@ import {
 import FormProducts from '../components/Products/FormProducts/FormProducts';
 import ProductsTable from '../components/Products/AllProduct/ProductTable';
 import OrdersDashboard from '../components/Orders/OrdersDashboard';
+import FormProductOff from '../components/Products/Promotion/FormProductOff';
 
 const Dashboard = () => {
   const [currentView, setCurrentView] = useState('pedidos');
@@ -21,7 +22,6 @@ const Dashboard = () => {
     { id: 'pedidos', icon: ShoppingCart, label: 'Pedidos' },
     { id: 'productos', icon: Package, label: 'Productos' },
     { id: 'usuarios', icon: Users, label: 'Usuarios' },
-    { id: 'configuracion', icon: Settings, label: 'Configuración' },
     { id: 'promociones', icon: Settings, label: 'Promocion' },
     { id: 'banners', icon: Settings, label: 'Banners' },
 
@@ -63,12 +63,13 @@ const Dashboard = () => {
             </div>
           </div>
         );
-      case 'configuracion':
+      case 'promociones':
         return (
           <div className="p-6">
             <h2 className="text-3xl font-semibold mb-4 text-gray-700">Configuración</h2>
             <div className="bg-white p-6 rounded-lg shadow-md">
               <p>Contenido de la vista de configuración</p>
+              <FormProductOff></FormProductOff>
             </div>
           </div>
         );

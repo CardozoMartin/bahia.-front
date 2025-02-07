@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingBag, X, Menu, ChevronDown } from 'lucide-react';
+import { useSession } from '../../store/useSession';
+import { Link } from 'react-router-dom';
 
 const Navbar = ({ cartItemCount, openCart, lastAddedProduct, clearLastAddedProduct }) => {
+  const { user } = useSession(); // Obtén el usuario del store
   const [showProductPreview, setShowProductPreview] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -47,20 +50,34 @@ const Navbar = ({ cartItemCount, openCart, lastAddedProduct, clearLastAddedProdu
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-8">
-            {['Inicio', 'Colecciones', 'Anillos', 'Collares', 'Contacto'].map((item) => (
-              <a
-                key={item}
-                href={`#${item.toLowerCase()}`}
-                className="group relative py-2 text-sm text-neutral-600 font-medium tracking-wide hover:text-neutral-900 transition-colors duration-200"
-              >
-                <span>{item}</span>
-                <span className="absolute inset-x-0 bottom-0 h-0.5 bg-neutral-900 transform scale-x-0 origin-left transition-transform group-hover:scale-x-100" />
-              </a>
-            ))}
+            <Link to={"/login"} className="group relative py-2 text-sm text-neutral-600 font-medium tracking-wide hover:text-neutral-900 transition-colors duration-200">Login
+            <span className="absolute inset-x-0 bottom-0 h-0.5 bg-neutral-900 transform scale-x-0 origin-left transition-transform group-hover:scale-x-100" /></Link>
+            <Link to={"/register"} className="group relative py-2 text-sm text-neutral-600 font-medium tracking-wide hover:text-neutral-900 transition-colors duration-200">Registro
+            <span className="absolute inset-x-0 bottom-0 h-0.5 bg-neutral-900 transform scale-x-0 origin-left transition-transform group-hover:scale-x-100" /></Link>
+            <Link to={"/dashboard"} className="group relative py-2 text-sm text-neutral-600 font-medium tracking-wide hover:text-neutral-900 transition-colors duration-200">Dashboard
+            <span className="absolute inset-x-0 bottom-0 h-0.5 bg-neutral-900 transform scale-x-0 origin-left transition-transform group-hover:scale-x-100" /></Link>
           </div>
 
-          {/* Cart & Mobile Menu */}
+          {/* Cart & Account Links */}
           <div className="flex items-center space-x-4">
+            {/* Enlace "Mi cuenta" o "Iniciar sesión" */}
+            {user ? (
+              <Link
+                to="/myaccount"
+                className="hidden lg:flex items-center text-sm text-neutral-600 font-medium hover:text-neutral-900 transition-colors"
+              >
+                Mi cuenta
+              </Link>
+            ) : (
+              <Link
+                to="/login"
+                className="hidden lg:flex items-center text-sm text-neutral-600 font-medium hover:text-neutral-900 transition-colors"
+              >
+                Iniciar sesión
+              </Link>
+            )}
+
+            {/* Carrito */}
             <button
               onClick={openCart}
               className="relative p-2 hover:bg-neutral-100 rounded-full transition-colors"
@@ -73,6 +90,7 @@ const Navbar = ({ cartItemCount, openCart, lastAddedProduct, clearLastAddedProdu
               )}
             </button>
 
+            {/* Menú móvil */}
             <button
               onClick={toggleMobileMenu}
               className="lg:hidden p-2 hover:bg-neutral-100 rounded-full transition-colors"
@@ -93,15 +111,9 @@ const Navbar = ({ cartItemCount, openCart, lastAddedProduct, clearLastAddedProdu
           }`}
         >
           <div className="container mx-auto px-4 py-4 space-y-4">
-            {['Inicio', 'Colecciones', 'Anillos', 'Collares', 'Contacto'].map((item) => (
-              <a
-                key={item}
-                href={`#${item.toLowerCase()}`}
-                className="block py-2 text-neutral-600 hover:text-neutral-900 transition-colors"
-              >
-                {item}
-              </a>
-            ))}
+            <Link to={"/login"} className="block py-2 text-neutral-600 hover:text-neutral-900 transition-colors">Login</Link>
+            <Link to={"/register"} className="block py-2 text-neutral-600 hover:text-neutral-900 transition-colors">Registro</Link>
+            <Link to={"/dashboard"} className="block py-2 text-neutral-600 hover:text-neutral-900 transition-colors">Dashboard</Link>
           </div>
         </div>
 

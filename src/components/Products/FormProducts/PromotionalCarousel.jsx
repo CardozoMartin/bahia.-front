@@ -1,14 +1,19 @@
 import React from 'react';
 import { ChevronLeft, ChevronRight, Tag } from 'lucide-react';
 
-const PromotionalCarousel = ({ promotionalProducts, addToCart }) => {
+const PromotionalCarousel = ({ productsOff, addToCart }) => {
   const scrollRef = React.useRef(null);
+  
+  // Add check for productsOff
+  if (!productsOff || !Array.isArray(productsOff)) {
+    return null; // Or return a loading/error state
+  }
 
   const scroll = (direction) => {
     const { current } = scrollRef;
     if (current) {
-      const scrollAmount = direction === 'left' 
-        ? -current.offsetWidth 
+      const scrollAmount = direction === 'left'
+        ? -current.offsetWidth
         : current.offsetWidth;
       
       current.scrollBy({
@@ -39,33 +44,33 @@ const PromotionalCarousel = ({ promotionalProducts, addToCart }) => {
             className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide scroll-smooth"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {promotionalProducts.map((product) => (
-              <div 
-                key={product._id} 
+            {productsOff.map((product) => (
+              <div
+                key={product._id}
                 className="flex-none w-72 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
               >
                 <div className="p-4">
                   <div className="relative">
                     <img
-                      src={product.image}
-                      alt={product.name}
+                      src={product.imagen}
+                      alt={product.nombre}
                       className="w-full h-48 object-cover rounded-lg"
                     />
                     <div className="absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded-full text-sm font-medium shadow-sm">
-                      {product.discountPercentage}% OFF
+                      {product.descuento}% OFF
                     </div>
                   </div>
                   
                   <div className="mt-4 space-y-3">
                     <h3 className="font-semibold text-lg text-gray-800 line-clamp-1">
-                      {product.name}
+                      {product.nombre}
                     </h3>
                     <div className="flex items-center gap-2">
                       <span className="text-gray-500 line-through text-sm">
-                        ${product.originalPrice}
+                        ${product.precioAnterior}
                       </span>
                       <span className="text-xl font-bold text-indigo-600">
-                        ${product.price}
+                        ${product.precio}
                       </span>
                     </div>
                     <button

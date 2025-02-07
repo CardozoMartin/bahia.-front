@@ -1,201 +1,163 @@
-import React, { useState } from 'react';
-import { Mail, Lock, AlertCircle } from 'lucide-react';
+import React, { useState } from 'react'
+import Footer from '../components/common/Footer';
+import Navbar from '../components/common/Navbar';
+import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import Swal from 'sweetalert2';
+import { toast } from 'sonner';
+import { postLoginFn } from '../api/apiUser';
+import { useMutation } from '@tanstack/react-query';
+import { ArrowRight, Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import { useSession } from '../store/useSession';
 
 const LoginView = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
+    const { login } = useSession()
+    const [showPassword, setShowPassword] = useState(false);
+    const navigate = useNavigate()
+    // React Hook Form
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm();
 
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
 
-  const validateField = (name, value) => {
-    let error = '';
-    switch (name) {
-      case 'email':
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          error = 'Ingresa un email válido';
-        }
-        break;
-      case 'password':
-        if (value.length < 8) {
-          error = 'La contraseña debe tener al menos 8 caracteres';
-        }
-        break;
-      default:
-        break;
-    }
-    return error;
-  };
+    const { mutate: postLogin } = useMutation({
+        mutationFn: postLoginFn,
+        onSuccess: (userData) => {
+            Swal.close();
+            toast.success('Bienvenido');
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setErrors(prev => ({ ...prev, [name]: validateField(name, value) }));
-  };
+            // Asegurarnos de que pasamos el usuario decodificado completo
+            login(userData);
 
-  const handleBlur = (e) => {
-    const { name } = e.target;
-    setTouched(prev => ({ ...prev, [name]: true }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const newErrors = {};
-    Object.keys(formData).forEach(key => {
-      newErrors[key] = validateField(key, formData[key]);
+            navigate('/');
+        },
+        onError: (err) => {
+            Swal.close();
+            toast.error(err.message);
+        },
     });
-    setErrors(newErrors);
-    setTouched(Object.keys(formData).reduce((acc, key) => ({ ...acc, [key]: true }), {}));
+    // Manejo del envío del formulario
+    const onSubmit = (data) => {
+        console.log('Datos enviados:', data);
+        postLogin(data);
+    };
 
-    if (Object.values(newErrors).every(error => !error)) {
-      console.log('Inicio de sesión válido:', formData);
-    }
-  };
+    return (
+        <>
+            <Navbar />
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-neutral-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="text-center">
-          <div className="mx-auto h-12 w-12 bg-gradient-to-r from-amber-400 to-amber-600 rounded-full flex items-center justify-center">
-            <Lock className="h-6 w-6 text-white" />
-          </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Bienvenido de nuevo
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Ingresa a tu cuenta exclusiva
-          </p>
-        </div>
-      </div>
+            <div className="bg-gradient-to-br from-neutral-50 to-neutral-100 min-h-screen flex items-center justify-center py-12 px-4">
+                <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden border border-neutral-100">
+                    <div className="p-8 space-y-6">
+                        <header className="text-center">
+                            <h2 className="text-3xl font-thin tracking-tight text-neutral-800 mb-2">
+                                Iniciar Sesión
+                            </h2>
+                            <p className="text-neutral-500 text-sm">
+                                Accede a tu cuenta de joyería exclusiva
+                            </p>
+                        </header>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-lg shadow-neutral-200/50 sm:rounded-xl sm:px-10 border border-neutral-100">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
+                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                            {/* Input de Correo */}
+                            <div className="relative group">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <Mail className="w-4 h-4 text-neutral-400 group-focus-within:text-neutral-600 transition-colors" />
+                                </div>
+                                <input
+                                    type="email"
+                                    placeholder="Correo Electrónico"
+                                    className={`w-full pl-10 pr-3 py-3 border-b ${errors.email ? 'border-red-500' : 'border-neutral-200'
+                                        } focus:border-neutral-500 outline-none text-neutral-800 transition-colors`}
+                                    {...register('email', {
+                                        required: 'El correo es obligatorio',
+                                        pattern: {
+                                            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                            message: 'Formato de correo inválido',
+                                        },
+                                    })}
+                                />
+                                {errors.email && (
+                                    <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+                                )}
+                            </div>
+
+                            {/* Input de Contraseña */}
+                            <div className="relative group">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <Lock className="w-4 h-4 text-neutral-400 group-focus-within:text-neutral-600 transition-colors" />
+                                </div>
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    placeholder="Contraseña"
+                                    className={`w-full pl-10 pr-10 py-3 border-b ${errors.password ? 'border-red-500' : 'border-neutral-200'
+                                        } focus:border-neutral-500 outline-none text-neutral-800 transition-colors`}
+                                    {...register('password', {
+                                        required: 'La contraseña es obligatoria',
+                                        minLength: {
+                                            value: 6,
+                                            message: 'Debe tener al menos 6 caracteres',
+                                        },
+                                    })}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                >
+                                    {showPassword ? (
+                                        <EyeOff className="w-4 h-4 text-neutral-400" />
+                                    ) : (
+                                        <Eye className="w-4 h-4 text-neutral-400" />
+                                    )}
+                                </button>
+                                {errors.password && (
+                                    <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
+                                )}
+                            </div>
+
+                            {/* Olvidé mi contraseña */}
+                            <div className="text-right mb-4">
+                                <a
+                                    href="/recuperar-contraseña"
+                                    className="text-xs text-neutral-500 hover:text-neutral-800 transition-colors"
+                                >
+                                    ¿Olvidaste tu contraseña?
+                                </a>
+                            </div>
+
+                            {/* Botón de Enviar */}
+                            <button
+                                type="submit"
+                                className="w-full bg-neutral-800 text-white py-3 rounded-lg hover:bg-neutral-900 transition-colors group flex items-center justify-center"
+                            >
+                                Iniciar Sesión
+                                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </button>
+                        </form>
+
+                        {/* Enlace para registro */}
+                        <div className="text-center">
+                            <p className="text-xs text-neutral-500">
+                                ¿No tienes una cuenta?{' '}
+                                <a
+                                    href="/registro"
+                                    className="text-neutral-800 hover:underline font-medium"
+                                >
+                                    Regístrate
+                                </a>
+                            </p>
+                        </div>
+                    </div>
                 </div>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={`appearance-none block w-full pl-10 px-3 py-2 border rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 sm:text-sm transition-all duration-200 ${
-                    touched.email && errors.email ? 'border-red-300' : 'border-gray-300'
-                  }`}
-                  placeholder="tu@email.com"
-                />
-                {touched.email && errors.email && (
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <AlertCircle className="h-5 w-5 text-red-500" />
-                  </div>
-                )}
-              </div>
-              {touched.email && errors.email && (
-                <p className="mt-2 text-sm text-red-600">{errors.email}</p>
-              )}
             </div>
 
-            {/* Contraseña */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Contraseña
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={`appearance-none block w-full pl-10 px-3 py-2 border rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 sm:text-sm transition-all duration-200 ${
-                    touched.password && errors.password ? 'border-red-300' : 'border-gray-300'
-                  }`}
-                  placeholder="••••••••"
-                />
-                {touched.password && errors.password && (
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <AlertCircle className="h-5 w-5 text-red-500" />
-                  </div>
-                )}
-              </div>
-              {touched.password && errors.password && (
-                <p className="mt-2 text-sm text-red-600">{errors.password}</p>
-              )}
-            </div>
+            <Footer />
+        </>
+    );
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                  Recordarme
-                </label>
-              </div>
+}
 
-              <div className="text-sm">
-                <a href="#" className="font-medium text-amber-600 hover:text-amber-500">
-                  ¿Olvidaste tu contraseña?
-                </a>
-              </div>
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all duration-200 transform hover:scale-[1.02]"
-              >
-                Iniciar sesión
-              </button>
-            </div>
-
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">
-                    ¿No tienes una cuenta?
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <a
-                  href="#"
-                  className="w-full flex justify-center py-2 px-4 border border-amber-300 rounded-lg shadow-sm text-sm font-medium text-amber-600 bg-white hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all duration-200"
-                >
-                  Registrarse
-                </a>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default LoginView;
+export default LoginView

@@ -10,9 +10,9 @@ const api = axios.create({
 });
 
 // Obtener todos los productos
-export const getProducts = async () => {
+export const getProductsOff = async () => {
     try {
-        const response = await api.get(`${API_URL}/products`);
+        const response = await api.get(`${API_URL}/products-offert`);
         return response.data;
     } catch (error) {
         console.error('Error al obtener productos:', error);
@@ -21,7 +21,7 @@ export const getProducts = async () => {
 };
 
 // Obtener un producto por ID
-export const getProductById = async (id) => {
+export const getProductOffById = async (id) => {
     try {
         const response = await api.get(`/${id}`);
         return response.data;
@@ -32,9 +32,9 @@ export const getProductById = async (id) => {
 };
 
 // Crear un nuevo producto
-export const createProduct = async (formData) => {
+export const createProductOff = async (formData) => {
     try {
-      const response = await api.post('/products', formData, {
+      const response = await api.post('/products/offert', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -46,7 +46,7 @@ export const createProduct = async (formData) => {
   };
 
 // Actualizar un producto
-export const updateProduct = async (id, formData) => {
+export const updateProductOff = async (id, formData) => {
     try {
       const response = await api.put(`/products/${id}`, formData, {
         headers: {
@@ -60,24 +60,15 @@ export const updateProduct = async (id, formData) => {
   };
 
 // Eliminar un producto
-// export const deleteProduct = async (id, token) => {
-//     try {
-//         await api.delete(`/${id}`, {
-//             headers: {
-//                 Authorization: `Bearer ${token}`,
-//             },
-//         });
-//     } catch (error) {
-//         console.error('Error al eliminar producto:', error);
-//         throw error;
-//     }
-// };
-
-export const deleteProduct = async (id) => {
-  try {
-      const response = await api.delete(`/products/${id}`);
-      return response.data;
-  } catch (error) {
-      throw new Error(error.response?.data?.message || 'Error al eliminar el producto');
-  }
+export const deleteProductOff = async (id, token) => {
+    try {
+        await api.delete(`/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+    } catch (error) {
+        console.error('Error al eliminar producto:', error);
+        throw error;
+    }
 };

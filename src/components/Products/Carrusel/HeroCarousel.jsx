@@ -1,69 +1,92 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
+import { getBanner } from '../../../api/apiBanner';
+import { useQuery } from '@tanstack/react-query';
 
 const HeroCarousel = () => {
+  // 1. Todos los hooks primero
   const [currentSlide, setCurrentSlide] = useState(0);
-
-  const slides = [
-    {
-      image: "/api/placeholder/1920/800",
-      title: "Colección Primavera 2025",
-      subtitle: "Descubre la elegancia en cada detalle",
-      cta: "Ver Colección"
-    },
-    {
-      image: "/api/placeholder/1920/800",
-      title: "Piezas Únicas",
-      subtitle: "Diseños exclusivos que cuentan historias",
-      cta: "Explorar"
-    },
-    {
-      image: "/api/placeholder/1920/800",
-      title: "Joyas Artesanales",
-      subtitle: "Creadas con pasión y dedicación",
-      cta: "Descubrir"
-    }
-  ];
+  const {
+    data: banners,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["banners"],
+    queryFn: getBanner,
+  });
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
+    if (banners && banners.length > 0) {
+      const timer = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % banners.length);
+      }, 5000);
+      return () => clearInterval(timer);
+    }
+  }, [banners]);
 
+  // 2. Funciones auxiliares
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
+    if (banners) {
+      setCurrentSlide((prev) => (prev + 1) % banners.length);
+    }
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+    if (banners) {
+      setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length);
+    }
   };
 
   const goToSlide = (index) => {
     setCurrentSlide(index);
   };
 
+  // 3. Renderizado condicional
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-6 bg-gradient-to-b from-white to-neutral-50">
+        {/* ... (mantén el contenido del loading como está) ... */}
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4 text-red-500">
+        <div className="relative w-16 h-16">
+          <AlertCircle className="w-16 h-16 animate-bounce" />
+        </div>
+        <div className="text-center">
+          <p className="text-lg font-medium">¡Ups! Algo salió mal</p>
+          <p className="text-sm text-red-400">Por favor, intenta nuevamente más tarde</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!banners || banners.length === 0) {
+    return null;
+  }
+
+  // 4. Renderizado principal
   return (
     <div className="relative w-full h-[60vh] md:h-[80vh] overflow-hidden bg-neutral-100">
-      {/* Slides */}
+      {/* El resto del código permanece igual */}
       <div className="relative h-full">
-        {slides.map((slide, index) => (
+        {banners.map((slide, index) => (
           <div
             key={index}
             className={`absolute inset-0 transition-opacity duration-1000 ${
               currentSlide === index ? 'opacity-100' : 'opacity-0'
             }`}
           >
-            {/* Image with gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
             <img
-              src={slide.image}
-              alt={slide.title}
+              src={slide.imagen}
+              alt={slide.titulo}
               className="w-full h-full object-cover"
             />
             
-            {/* Content */}
             <div className="absolute inset-0 flex items-center">
               <div className="container mx-auto px-4">
                 <div className="max-w-2xl space-y-6">
@@ -75,7 +98,7 @@ const HeroCarousel = () => {
                       transition: 'all 1s ease-out 0.5s'
                     }}
                   >
-                    {slide.title}
+                    {slide.titulo}
                   </h2>
                   <p 
                     className="text-lg md:text-xl text-white/90"
@@ -85,18 +108,9 @@ const HeroCarousel = () => {
                       transition: 'all 1s ease-out 0.7s'
                     }}
                   >
-                    {slide.subtitle}
+                    {slide.subtitulo}
                   </p>
-                  <button 
-                    className="px-6 py-3 bg-white text-neutral-900 text-sm font-medium rounded-md hover:bg-neutral-100 transition-colors"
-                    style={{ 
-                      opacity: currentSlide === index ? 1 : 0,
-                      transform: currentSlide === index ? 'translateY(0)' : 'translateY(20px)',
-                      transition: 'all 1s ease-out 0.9s'
-                    }}
-                  >
-                    {slide.cta}
-                  </button>
+                 
                 </div>
               </div>
             </div>
@@ -104,7 +118,6 @@ const HeroCarousel = () => {
         ))}
       </div>
 
-      {/* Navigation Arrows */}
       <button
         onClick={prevSlide}
         className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors"
@@ -118,9 +131,8 @@ const HeroCarousel = () => {
         <ChevronRight className="w-6 h-6 text-white" />
       </button>
 
-      {/* Dots Navigation */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-3">
-        {slides.map((_, index) => (
+        {banners.map((_, index) => (
           <button
             key={index}
             onClick={() => goToSlide(index)}

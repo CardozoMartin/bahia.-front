@@ -1,22 +1,46 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createProduct, updateProduct } from '../../../api/apiProduct';
 import { toast } from 'sonner';
 import { Upload, Package, DollarSign, FileText, Palette, Box, Database, Image } from 'lucide-react';
+import { useProduct } from '../../../store/useProduct';
 
-const FormProducts = ({ isEditing, product, onSubmitSuccess }) => {
+const FormProducts = ({ onSubmitSuccess }) => {
+  const { product: productToEdit, clearProduct } = useProduct();
+  const isEditing = !!productToEdit;
+
   const {
     register,
     handleSubmit: onSubmitRHF,
     formState: { errors },
     reset,
+    setValue
   } = useForm({
-    defaultValues: isEditing ? {
-      ...product,
-      imagen: undefined // Reset imagen field since we can't set a file input value
-    } : {}
+    defaultValues: {
+      nombre: '',
+      precio: '',
+      color: '',
+      material: '',
+      stock: '',
+      descripcion: '',
+      imagen: undefined
+    }
   });
+
+  // Efecto para cargar los datos del producto cuando existe productToEdit
+  useEffect(() => {
+    if (productToEdit) {
+      // Establecer los valores del formulario con los datos del producto
+      setValue('nombre', productToEdit.nombre);
+      setValue('precio', productToEdit.precio);
+      setValue('color', productToEdit.color);
+      setValue('material', productToEdit.material);
+      setValue('stock', productToEdit.stock);
+      setValue('descripcion', productToEdit.descripcion);
+      // No establecemos la imagen ya que no podemos pre-establecer un valor en un input type="file"
+    }
+  }, [productToEdit, setValue]);
 
   const queryClient = useQueryClient();
 
@@ -45,6 +69,11 @@ const FormProducts = ({ isEditing, product, onSubmitSuccess }) => {
 
   const { mutate: putProduct } = useMutation({
     mutationFn: async (data) => {
+      // Verifica si tenemos un ID válido
+      if (!productToEdit?._id && !productToEdit?.id) {
+        throw new Error('ID del producto no encontrado');
+      }
+
       const formData = new FormData();
       Object.keys(data).forEach(key => {
         if (key === 'imagen' && data[key][0]) {
@@ -53,21 +82,29 @@ const FormProducts = ({ isEditing, product, onSubmitSuccess }) => {
           formData.append(key, data[key]);
         }
       });
-      return updateProduct(product.id, formData);
+
+      // Usa el ID correcto (algunos backends usan _id, otros id)
+      const productId = productToEdit._id || productToEdit.id;
+      console.log('Actualizando producto con ID:', productId); // Para debugging
+      
+      return updateProduct(productId, formData);
     },
     onSuccess: () => {
       toast.success('Producto editado con éxito');
       reset();
+      clearProduct(); // Limpiamos el producto del estado global
       queryClient.invalidateQueries('product');
       onSubmitSuccess?.();
     },
     onError: (e) => {
+      console.error('Error completo:', e); // Para debugging
       toast.error('Error al editar el producto: ' + (e.message || 'Error desconocido'));
     },
   });
 
   const handleSubmit = (data) => {
-    if (isEditing) {
+    if (isEditing && productToEdit) {
+      console.log('Editando producto:', productToEdit); // Para debugging
       putProduct(data);
     } else {
       postProduct(data);

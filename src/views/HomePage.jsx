@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/common/Navbar';
 import ProductCars from '../components/Products/Cards/ProductCars';
 import Footer from '../components/common/Footer';
@@ -6,12 +6,20 @@ import ShoppingCarts from '../components/Products/Carts/ShoppingCarts';
 import CheckoutForm from '../components/Products/Carts/FormCarts/CheckoutForm';
 import HeroCarousel from '../components/Products/Carrusel/HeroCarousel';
 import PromotionalCarousel from '../components/Products/FormProducts/PromotionalCarousel';
+import WhatsAppButton from '../components/Utils/WhatsAppButton';
+import { useQuery } from '@tanstack/react-query';
+import { getProductsOff } from '../api/apiProductOffert';
 
 const HomePage = () => {
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(loadCartFromLocalStorage());
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [lastAddedProduct, setLastAddedProduct] = useState(null);
+
+  useEffect(() => {
+    // Al cargar el componente, asegurarse de que el carrito se guarda en localStorage
+    saveCartToLocalStorage(cart);
+  }, [cart]);
 
   const addToCart = (product) => {
     setCart(prevCart => {
@@ -80,6 +88,17 @@ const HomePage = () => {
       alert('Hubo un problema al procesar tu pedido');
     }
   };
+  const {
+    data: productsOff,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["productsoff"],
+    queryFn: getProductsOff,
+  });
+
+  console.log(productsOff)
   const promotionalProducts = [
     {
       _id: 'promo1',
@@ -87,50 +106,11 @@ const HomePage = () => {
       originalPrice: 99.99,
       price: 79.99,
       discountPercentage: 20,
-      image: '/path-to-image-1.jpg'
-    },
-    {
-      _id: 'promo6',
-      name: 'Producto en Oferta 6',
-      originalPrice: 99.99,
-      price: 79.99,
-      discountPercentage: 20,
-      image: '/path-to-image-1.jpg'
-    },
-    {
-      _id: 'promo5',
-      name: 'Producto en Oferta 5',
-      originalPrice: 99.99,
-      price: 79.99,
-      discountPercentage: 20,
-      image: '/path-to-image-1.jpg'
-    },
-    {
-      _id: 'promo4',
-      name: 'Producto en Oferta 4',
-      originalPrice: 99.99,
-      price: 79.99,
-      discountPercentage: 20,
-      image: '/path-to-image-1.jpg'
-    },
-    {
-      _id: 'promo2',
-      name: 'Producto en Oferta 3',
-      originalPrice: 99.99,
-      price: 79.99,
-      discountPercentage: 20,
-      image: '/path-to-image-1.jpg'
-    },
-    {
-      _id: 'promo3',
-      name: 'Producto en Oferta 2',
-      originalPrice: 99.99,
-      price: 79.99,
-      discountPercentage: 20,
-      image: '/path-to-image-1.jpg'
+      image: 'https://http2.mlstatic.com/D_NQ_NP_803447-MLA81083055223_122024-O.webp'
     },
     // Add more promotional products...
   ];
+
   return (
     <>
       <Navbar
@@ -143,10 +123,16 @@ const HomePage = () => {
       {isCartOpen && (
         <ShoppingCarts
           cart={cart}
-          updateQuantity={updateQuantity}
+          updateQuantity={(id, quantity) => {
+            // Find product and update quantity using store's addToCart
+            const product = cart.find(item => item._id === id);
+            if (product) {
+              addToCart({ ...product, quantity });
+            }
+          }}
           removeFromCart={removeFromCart}
-          onClose={toggleCart}
-          onCheckout={openCheckout}
+          onClose={() => setIsCartOpen(false)}
+          onCheckout={() => setIsCheckoutOpen(true)}
         />
       )}
 
@@ -157,16 +143,27 @@ const HomePage = () => {
           onSubmit={handleOrderSubmit}
         />
       )}
+
       <HeroCarousel></HeroCarousel>
 
       <PromotionalCarousel 
-        promotionalProducts={promotionalProducts}
+        productsOff={productsOff}
         addToCart={addToCart}
       />
+      <WhatsAppButton></WhatsAppButton>
       <ProductCars addToCart={addToCart} />
       <Footer />
     </>
   );
+};
+
+const saveCartToLocalStorage = (updatedCart) => {
+  localStorage.setItem('cart', JSON.stringify(updatedCart));
+};
+
+const loadCartFromLocalStorage = () => {
+  const savedCart = localStorage.getItem('cart');
+  return savedCart ? JSON.parse(savedCart) : [];
 };
 
 export default HomePage;
