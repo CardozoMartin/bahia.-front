@@ -13,6 +13,7 @@ import FormProducts from '../components/Products/FormProducts/FormProducts';
 import ProductsTable from '../components/Products/AllProduct/ProductTable';
 import OrdersDashboard from '../components/Orders/OrdersDashboard';
 import FormProductOff from '../components/Products/Promotion/FormProductOff';
+import ProductsTableOff from '../components/Products/Promotion/ProductTableOff';
 
 const Dashboard = () => {
   const [currentView, setCurrentView] = useState('pedidos');
@@ -70,6 +71,7 @@ const Dashboard = () => {
             <div className="bg-white p-6 rounded-lg shadow-md">
               <p>Contenido de la vista de configuración</p>
               <FormProductOff></FormProductOff>
+              <ProductsTableOff></ProductsTableOff>
             </div>
           </div>
         );
