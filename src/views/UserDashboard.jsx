@@ -16,17 +16,18 @@ const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState('profile');
   
   const [userData, setUserData] = useState({
-    nombre: 'María',
-    apellido: 'González',
-    email: 'maria.gonzalez@ejemplo.com',
-    telefono: '+54 9 11 1234-5678'
+    nombre: user.nombre,
+    apellido: user.apellido,
+    email: user.email,
+    telefono: user.telefono
   });
 
-  const { data: orders, isLoading, error } = useQuery({
+  const { data: allOrders, isLoading, error } = useQuery({
     queryKey: ['orders'],
     queryFn: getOrders
   });
-
+  const orders = allOrders?.filter(order => order.idUser === user.id) || [];
+console.log(orders)
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setUserData(prev => ({

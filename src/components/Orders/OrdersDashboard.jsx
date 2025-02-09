@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Clock, Truck, Package, Home, CheckCircle, XCircle, Search } from 'lucide-react';
+import { Clock, Package, Search } from 'lucide-react';
 import { getOrders, updateOrderDeliveryStatus, updateOrderStatus } from '../../api/apiCart';
 
 const OrderBadge = ({ status, type = 'status', onClick, isActive, isDisabled }) => {
@@ -90,22 +90,22 @@ const OrdersDashboard = () => {
         <div className="space-y-6">
           {orders.map((order) => (
             <div 
-              key={order._id} 
+              key={order?._id} 
               className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-6"
             >
               <div className="grid md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                    Pedido #{order._id}
+                    Pedido #{order?._id || 'Sin ID'}
                   </h3>
                   <div className="text-gray-600 space-y-1">
-                    <p>{order.email}</p>
-                    <p>{order.telefono}</p>
-                    <p>{order.direccion}</p>
+                    <p>{order?.email || 'Email no disponible'}</p>
+                    <p>{order?.telefono || 'Teléfono no disponible'}</p>
+                    <p>{order?.direccion || 'Dirección no disponible'}</p>
                   </div>
                 </div>
                 <div className="flex justify-end items-start gap-2">
-                  {order.estado === 'pendiente' && (
+                  {order?.estado === 'pendiente' && (
                     <>
                       <OrderBadge 
                         status="Aceptar" 
@@ -127,29 +127,32 @@ const OrdersDashboard = () => {
               <div className="border-t border-gray-200 pt-4 mb-4">
                 <h4 className="font-semibold mb-3 text-gray-700">Productos:</h4>
                 <div className="space-y-2">
-                  {order.productos.map((item, index) => {
-                    const producto = typeof item.productoId === 'object' ? item.productoId : {};
+                  {order?.productos?.map((item, index) => {
+                    // Safely access producto data with null checks
+                    const producto = item?.productoId && typeof item.productoId === 'object' 
+                      ? item.productoId 
+                      : {};
                     
                     return (
                       <div 
-                        key={producto._id || index} 
+                        key={`${order?._id}-${index}`}
                         className="flex justify-between items-center bg-gray-100 p-3 rounded-lg"
                       >
                         <div>
                           <span className="font-medium text-gray-800">
-                            {producto.nombre || 'Producto sin nombre'}
+                            {producto?.nombre || 'Producto sin nombre'}
                           </span>
                           <span className="text-gray-500 ml-2 text-sm">
-                            ({producto._id || 'ID no disponible'})
+                            ({producto?._id || 'ID no disponible'})
                           </span>
                         </div>
                         <div className="flex items-center gap-4">
                           <span className="text-gray-600">
-                            Cantidad: {item.cantidad}
+                            Cantidad: {item?.cantidad || 0}
                           </span>
-                          {producto.precio && (
+                          {producto?.precio && (
                             <span className="font-semibold text-gray-800">
-                              ${(producto.precio * item.cantidad).toFixed(2)}
+                              ${((producto.precio * (item?.cantidad || 0)) || 0).toFixed(2)}
                             </span>
                           )}
                         </div>
@@ -161,32 +164,32 @@ const OrdersDashboard = () => {
 
               <div className="border-t border-gray-200 pt-4 flex justify-between items-center">
                 <OrderBadge 
-                  status={order.estado} 
+                  status={order?.estado || 'unknown'} 
                   type="status" 
                   isActive 
                 />
 
-                {order.estado === 'aceptado' && (
+                {order?.estado === 'aceptado' && (
                   <div className="flex gap-2">
                     <OrderBadge 
                       status="Preparando" 
                       type="delivery"
                       onClick={() => handleDeliveryStatusUpdate(order._id, 'armando')}
-                      isActive={order.estadoPedido === 'armando'}
+                      isActive={order?.estadoPedido === 'armando'}
                       isDisabled={updateDeliveryStatusMutation.isPending}
                     />
                     <OrderBadge 
                       status="En Camino" 
                       type="delivery"
                       onClick={() => handleDeliveryStatusUpdate(order._id, 'en camino')}
-                      isActive={order.estadoPedido === 'en camino'}
+                      isActive={order?.estadoPedido === 'en camino'}
                       isDisabled={updateDeliveryStatusMutation.isPending}
                     />
                     <OrderBadge 
                       status="Entregado" 
                       type="delivery"
                       onClick={() => handleDeliveryStatusUpdate(order._id, 'entregado')}
-                      isActive={order.estadoPedido === 'entregado'}
+                      isActive={order?.estadoPedido === 'entregado'}
                       isDisabled={updateDeliveryStatusMutation.isPending}
                     />
                   </div>

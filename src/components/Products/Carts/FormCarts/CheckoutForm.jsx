@@ -14,8 +14,20 @@ import {
   ShoppingBag
 } from 'lucide-react';
 import { postOrder } from '../../../../api/apiCart';
+import { useSession } from '../../../../store/useSession';
+import { useCartStore } from '../../../../store/cartStore';
+import { useNavigate } from 'react-router-dom';
 
 const CheckoutForm = ({ cart, onClose }) => {
+  const { user } = useSession();
+  const navigate = useNavigate()
+
+  // Verificar si user es null o undefined antes de acceder a sus propiedades
+  const nombreCompleto = user ? `${user.nombre || ''} ${user.apellido || ''}`.trim() : '';
+  const email = user?.email || '';
+  const telefono = user?.telefono || '';
+  const ID = user?.idUser || '';
+
   const [formStep, setFormStep] = useState(1);
   const { 
     register, 
@@ -27,9 +39,9 @@ const CheckoutForm = ({ cart, onClose }) => {
     mode: 'onChange',
     defaultValues: {
       personalInfo: {
-        nombre: '',
-        email: '',
-        telefono: '',
+        nombre: nombreCompleto, // Usar el valor seguro
+        email: email, // Usar el valor seguro
+        telefono: telefono, // Usar el valor seguro
       },
       shippingInfo: {
         direccion: '',
@@ -404,7 +416,10 @@ const CheckoutForm = ({ cart, onClose }) => {
     setFormStep(formStep - 1);
   };
 
-  const onFinalSubmit = (data) => {
+  const clearCart = useCartStore((state) => state.clearCart);
+  const onFinalSubmit = async (data) => {
+    const id = user?.id || ""; // Asegúrate de que `id` sea un string vacío si no existe
+  
     const pedidoData = {
       ...data.personalInfo,
       ...data.shippingInfo,
@@ -416,10 +431,22 @@ const CheckoutForm = ({ cart, onClose }) => {
       })),
       total: cart.reduce((total, item) => total + (item.precio * item.quantity), 0),
       estado: 'pendiente',
-      estadoPedido: 'armando'
+      estadoPedido: 'armando',
+      idUser: id, // Aquí se incluye el `id` del usuario
     };
-
-    submitOrderMutation.mutate(pedidoData);
+  
+    try {
+      await submitOrderMutation.mutateAsync(pedidoData); // Enviar el pedido
+      clearCart(); // Limpiar el carrito después de enviar el pedido
+      setShowSuccess(true); // Mostrar mensaje de éxito
+      setTimeout(() => {
+        onClose();
+        navigate("/") // Cerrar el modal después de 2 segundos
+      }, 1000);
+    } catch (error) {
+      alert('Error al crear el pedido');
+      console.error(error);
+    }
   };
 
   return (

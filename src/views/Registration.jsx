@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { User, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import Navbar from '../components/common/Navbar';
+import Footer from '../components/common/Footer';
 
 const Registration = () => {
   const [formData, setFormData] = useState({
@@ -32,16 +34,16 @@ const Registration = () => {
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (formData.contraseña !== formData.confirmarContraseña) {
-      alert("Las contraseñas no coinciden");
-      return;
-    }
-    console.log(formData);
+  
+
+  const handleSubmit = (data) => {
+    setIsSubmitting(true);
+    postUser({ ...data, isActive: true });
   };
 
   return (
+    <>
+    <Navbar></Navbar>
     <div className="bg-gradient-to-br from-neutral-50 to-neutral-100 min-h-screen flex items-center justify-center py-12 px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden border border-neutral-100">
         <div className="p-8 space-y-6">
@@ -58,7 +60,35 @@ const Registration = () => {
               <input
                 type="text"
                 name="nombre"
-                placeholder="Nombre Completo"
+                placeholder="Nombre "
+                value={formData.nombre}
+                onChange={handleChange}
+                className="w-full pl-10 pr-3 py-3 border-b border-neutral-200 focus:border-neutral-500 outline-none text-neutral-800 transition-colors"
+                required
+              />
+            </div>
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <User className="w-4 h-4 text-neutral-400 group-focus-within:text-neutral-600 transition-colors" />
+              </div>
+              <input
+                type="text"
+                name="apellido"
+                placeholder="Apellido"
+                value={formData.nombre}
+                onChange={handleChange}
+                className="w-full pl-10 pr-3 py-3 border-b border-neutral-200 focus:border-neutral-500 outline-none text-neutral-800 transition-colors"
+                required
+              />
+            </div>
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <User className="w-4 h-4 text-neutral-400 group-focus-within:text-neutral-600 transition-colors" />
+              </div>
+              <input
+                type="text"
+                name="nombre"
+                placeholder="Telefono"
                 value={formData.nombre}
                 onChange={handleChange}
                 className="w-full pl-10 pr-3 py-3 border-b border-neutral-200 focus:border-neutral-500 outline-none text-neutral-800 transition-colors"
@@ -149,6 +179,8 @@ const Registration = () => {
         </div>
       </div>
     </div>
+    <Footer></Footer>
+    </>
   );
 };
 

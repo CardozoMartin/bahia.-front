@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import Dashboard from './views/Dashboard'
 import HomePage from './views/HomePage'
@@ -7,35 +7,46 @@ import Registration from './views/Registration'
 import RingSizeGuide from './views/RingSizeGuide'
 import LoginView from './views/LoginView'
 import UserDashboard from './views/UserDashboard'
-
-
-
-
+import ProductsAll from './views/ProductsAll'
+import { useSession } from './store/useSession'
 
 const Router = () => {
+    const { user } = useSession()
+
     return (
         <BrowserRouter>
-            
             <main>
-                
                 <Routes>
-                    {/*<Route exact path="/" element={<HomePageViews></HomePageViews>} />*/}
+                    {/* Redirect logged-in users away from login and registration pages */}
+                    <Route
+                        exact
+                        path="/login"
+                        element={user ? <Navigate to="/userdashboard" /> : <LoginView />}
+                    />
+                    <Route
+                        exact
+                        path="/register"
+                        element={user ? <Navigate to="/userdashboard" /> : <Registration />}
+                    />
                     
-                    <Route exact path="/dashboard" element={<Dashboard></Dashboard>} />
-                    <Route exact path="/" element={<HomePage></HomePage>} />
+                    {/* Redirect users without admin rights to the homepage */}
+                    <Route
+                        exact
+                        path="/dashboard"
+                        element={user && user.isAdmin ? <Dashboard /> : <Navigate to="/" />}
+                    />
                     
-                    <Route exact path="/login" element={<LoginView></LoginView>} />
-                    <Route exact path="/register" element={<Registration></Registration>} />
-                    <Route exact path="/info" element={<RingSizeGuide></RingSizeGuide>} />
-                    <Route exact path="/userdashboard" element={<UserDashboard></UserDashboard>} />
+                    {/* Only logged-in users can access UserDashboard */}
+                    <Route
+                        exact
+                        path="/userdashboard"
+                        element={user ? <UserDashboard /> : <Navigate to="/" />}
+                    />
 
-
-
-
-                    
-
-
-
+                    {/* Other routes */}
+                    <Route exact path="/" element={<HomePage />} />
+                    <Route exact path="/info" element={<RingSizeGuide />} />
+                    <Route exact path="/productall" element={<ProductsAll />} />
                 </Routes>
             </main>
 

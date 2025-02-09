@@ -35,3 +35,19 @@ export const postLoginFn = async (formData) => {
     }
   };
 
+
+  export const postUserFn = async (data) => {
+    const res = await fetch(`${API_URL}/auth/register`, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: {
+        "Content-type": "application/json",
+      },
+    });
+  
+    if (!res.ok) {
+      throw new Error("Ocurrio un error al registrarse");
+    }
+    return data;
+  };
+
