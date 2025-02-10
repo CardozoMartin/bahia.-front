@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Footer from '../components/common/Footer';
 import Navbar from '../components/common/Navbar';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 import { toast } from 'sonner';
@@ -31,7 +31,12 @@ const LoginView = () => {
             // Asegurarnos de que pasamos el usuario decodificado completo
             login(userData);
 
-            navigate('/');
+            
+            if (userData.rol === true) {
+              navigate("/dashboard");
+            } else {
+              navigate("/");
+            }
         },
         onError: (err) => {
             Swal.close();
@@ -142,12 +147,12 @@ const LoginView = () => {
                         <div className="text-center">
                             <p className="text-xs text-neutral-500">
                                 ¿No tienes una cuenta?{' '}
-                                <a
-                                    href="/registro"
+                                <Link
+                                    to={"/register"}
                                     className="text-neutral-800 hover:underline font-medium"
                                 >
                                     Regístrate
-                                </a>
+                                </Link>
                             </p>
                         </div>
                     </div>

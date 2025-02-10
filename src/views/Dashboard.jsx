@@ -14,11 +14,34 @@ import ProductsTable from '../components/Products/AllProduct/ProductTable';
 import OrdersDashboard from '../components/Orders/OrdersDashboard';
 import FormProductOff from '../components/Products/Promotion/FormProductOff';
 import ProductsTableOff from '../components/Products/Promotion/ProductTableOff';
+import FormsBanners from '../components/Products/Banners/FormsBanners';
+import Swal from 'sweetalert2';
+import { useSession } from '../store/useSession';
+import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+  const { logout} = useSession()
+  const navigate = useNavigate()
   const [currentView, setCurrentView] = useState('pedidos');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
+  
+  const handleLogout = () => {
+    Swal.fire({
+      title: "Atención",
+      text: "¡Estás por salir!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Aceptar",
+      cancelButtonText: "Cancelar",
+    }).then((res) => {
+      if (res.isConfirmed) {
+        toast.success("Sesión cerrada con éxito");
+        logout();
+        navigate("/");
+      }
+    });
+  };
   const menuItems = [
     { id: 'pedidos', icon: ShoppingCart, label: 'Pedidos' },
     { id: 'productos', icon: Package, label: 'Productos' },
@@ -29,9 +52,7 @@ const Dashboard = () => {
 
   ];
 
-  const handleLogout = () => {
-    console.log('Cerrando sesión...');
-  };
+  
 
   const ViewContent = () => {
     switch (currentView) {
@@ -72,6 +93,16 @@ const Dashboard = () => {
               <p>Contenido de la vista de configuración</p>
               <FormProductOff></FormProductOff>
               <ProductsTableOff></ProductsTableOff>
+            </div>
+          </div>
+        );
+        case 'banners':
+        return (
+          <div className="p-6">
+            <h2 className="text-3xl font-semibold mb-4 text-gray-700">Configuración</h2>
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <p>Contenido de la vista de configuración</p>
+              <FormsBanners></FormsBanners>
             </div>
           </div>
         );

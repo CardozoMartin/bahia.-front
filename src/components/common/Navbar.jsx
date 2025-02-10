@@ -55,7 +55,7 @@ const Navbar = ({ cartItemCount, openCart, lastAddedProduct, clearLastAddedProdu
   };
   return (
     <>
-      <nav className={`fixed w-full z-40 transition-all duration-300 bg-pink-100  ${isScrolled ? 'bg-pink-100 shadow-md py-2' : 'bg-white/80 backdrop-blur-md py-4'
+      <nav className={`fixed w-full z-40 transition-all duration-300   ${isScrolled ? 'bg-white shadow-md py-2' : 'bg-white/80 backdrop-blur-md py-4'
         }`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
@@ -83,7 +83,7 @@ const Navbar = ({ cartItemCount, openCart, lastAddedProduct, clearLastAddedProdu
               )}
               <p className="hidden lg:block ">/</p>
               {user ? (
-                <Link to="/myaccount" className="hidden lg:flex text-sm text-neutral-600 hover:text-neutral-900">Hola, {user.nombre}</Link>
+                <Link to="/userdashboard" className="hidden lg:flex text-sm text-neutral-600 hover:text-neutral-900">Hola, {user.nombre}</Link>
               ) : (
                 <Link to="/login" className="hidden lg:flex text-sm text-neutral-600 hover:text-neutral-900">Iniciar sesión</Link>
               )}
@@ -140,8 +140,10 @@ const Navbar = ({ cartItemCount, openCart, lastAddedProduct, clearLastAddedProdu
 
       {/* Rest of the component remains the same */}
       {/* Mobile Menu Offcanvas */}
-      <div className={`fixed inset-0 bg-black/50 z-50 transition-opacity duration-300 lg:hidden ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+       {/* Mobile Menu Offcanvas */}
+       <div className={`fixed inset-0 bg-black/50 z-50 transition-opacity duration-300 lg:hidden ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`} onClick={toggleMobileMenu}>
+          
         <div
           className={`fixed top-0 left-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
             }`}
@@ -154,83 +156,93 @@ const Navbar = ({ cartItemCount, openCart, lastAddedProduct, clearLastAddedProdu
               </button>
             </div>
 
-            <div className="mt-8 flex flex-col space-y-6">
-              <Link
-                to="/"
-                className="text-lg font-medium text-neutral-700 hover:text-neutral-900 transition-colors"
-                onClick={toggleMobileMenu}
-              >
-                Inicio
-              </Link>
-              <Link
-                to="/productall"
-                className="text-lg font-medium text-neutral-700 hover:text-neutral-900 transition-colors"
-                onClick={toggleMobileMenu}
-              >
-                Productos
-              </Link>
-              <Link
-                to="/dashboard"
-                className="text-lg font-medium text-neutral-700 hover:text-neutral-900 transition-colors"
-                onClick={toggleMobileMenu}
-              >
-                Ayuda
-              </Link>
-              <Link
-                to="/dashboard"
-                className="text-lg font-medium text-neutral-700 hover:text-neutral-900 transition-colors"
-                onClick={toggleMobileMenu}
-              >
-                Contactanos
-              </Link>
-
-              {/* User specific links for mobile */}
-              <div className="flex items-center justify-center  mt-50 pt-4 border-t border-neutral-200">
-                <CircleUserRound className="w-6 h-6 mr-2  text-neutral-700" />
-
-                {user ? (
-                  <>
-                    <Link
-                      to="/userdashboard"
-                      className="text-dm mr-2 text-neutral-700 hover:text-neutral-900 transition-colors inline-flex"
-                      onClick={toggleMobileMenu}
-                    >
-                      Hola, {user.name}
-                    </Link>
-                    <span className="text-neutral-400">/</span>
-                    <p
-                      onClick={handleLogout}
-                      className="text-dm text-neutral-700 ms-2 mr-2 hover:text-neutral-900 transition-colors inline-flex"
-                      
-                    >
-                      Cerrar sesión
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <Link
-                      to="/login"
-                      className="text-dm mr-2 ms-2 text-neutral-700 hover:text-neutral-900 transition-colors inline-flex"
-                      onClick={toggleMobileMenu}
-                    >
-                      Iniciar sesión
-                    </Link>
-                    <span className="text-neutral-400">/</span>
-                    <Link
-                      to="/register"
-                      className="text-dm ms-2 mr-2 text-neutral-700 hover:text-neutral-900 transition-colors inline-flex"
-                      onClick={toggleMobileMenu}
-                    >
-                      Registro
-                    </Link>
-                  </>
-                )}
+            {/* Navigation Links */}
+            <div className="flex flex-col h-full justify-between">
+            <a href="/" className="flex items-center space-x-2">
+              <span className="font-playfair text-2xl md:text-3xl text-neutral-800">
+                BAHÍA<span className="font-light italic">Joyas</span>
+              </span>
+            </a>
+              <div className="mt-8 flex flex-col space-y-6">
+                <Link
+                  to="/"
+                  className="text-lg font-medium text-neutral-700 hover:text-neutral-900 transition-colors"
+                  onClick={toggleMobileMenu}
+                >
+                  Inicio
+                </Link>
+                <Link
+                  to="/productos"
+                  className="text-lg font-medium text-neutral-700 hover:text-neutral-900 transition-colors"
+                  onClick={toggleMobileMenu}
+                >
+                  Productos
+                </Link>
+                <Link
+                  to="/dashboard"
+                  className="text-lg font-medium text-neutral-700 hover:text-neutral-900 transition-colors"
+                  onClick={toggleMobileMenu}
+                >
+                  Ayuda
+                </Link>
+                <Link
+                  to="/dashboard"
+                  className="text-lg font-medium text-neutral-700 hover:text-neutral-900 transition-colors"
+                  onClick={toggleMobileMenu}
+                >
+                  Contactanos
+                </Link>
               </div>
 
+              {/* User section - Now at bottom */}
+              <div className="border-t border-neutral-200 pt-4 mt-auto">
+                <div className="flex items-center justify-center">
+                  <CircleUserRound className="w-6 h-6 mr-2 text-neutral-700" />
+
+                  {user ? (
+                    <>
+                      <Link
+                        to="/userdashboard"
+                        className="text-dm mr-2 text-neutral-700 hover:text-neutral-900 transition-colors inline-flex"
+                        onClick={toggleMobileMenu}
+                      >
+                        Hola,{user.nombre}
+                      </Link>
+                      <span className="text-neutral-400">/</span>
+                      <Link
+                        to="/logout"
+                        className="text-dm text-neutral-700 ms-2 mr-2 hover:text-neutral-900 transition-colors inline-flex"
+                        onClick={toggleMobileMenu}
+                      >
+                        Cerrar sesión
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        to="/login"
+                        className="text-dm mr-2 ms-2 text-neutral-700 hover:text-neutral-900 transition-colors inline-flex"
+                        onClick={toggleMobileMenu}
+                      >
+                        Iniciar sesión
+                      </Link>
+                      <span className="text-neutral-400">/</span>
+                      <Link
+                        to="/register"
+                        className="text-dm ms-2 mr-2 text-neutral-700 hover:text-neutral-900 transition-colors inline-flex"
+                        onClick={toggleMobileMenu}
+                      >
+                        Registro
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
     </>
   );
 };

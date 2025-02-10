@@ -21,19 +21,19 @@ const Router = () => {
                     <Route
                         exact
                         path="/login"
-                        element={user ? <Navigate to="/userdashboard" /> : <LoginView />}
+                        element={user ? <Navigate to="/" /> : <LoginView />}
                     />
                     <Route
                         exact
                         path="/register"
-                        element={user ? <Navigate to="/userdashboard" /> : <Registration />}
+                        element={user ? <Navigate to="/" /> : <Registration />}
                     />
                     
                     {/* Redirect users without admin rights to the homepage */}
                     <Route
                         exact
                         path="/dashboard"
-                        element={user && user.isAdmin ? <Dashboard /> : <Navigate to="/" />}
+                        element={user && user.rol ? <Dashboard /> : <Navigate to="/" />}
                     />
                     
                     {/* Only logged-in users can access UserDashboard */}

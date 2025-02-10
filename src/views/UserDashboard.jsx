@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import { getOrders } from '../api/apiCart';
 import { useSession } from '../store/useSession';
+import Navbar from '../components/common/Navbar';
+import Footer from '../components/common/Footer';
 
 const UserDashboard = () => {
   const { user }= useSession()
@@ -238,9 +240,9 @@ console.log(orders)
 
   return (
     <>
+    <Navbar></Navbar>
     
-    
-    <div className="min-h-screen bg-neutral-100">
+    <div className="min-h-screen pt-20 bg-neutral-100">
       <div className="container mx-auto px-4 py-8">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           {/* Header con Tabs */}
@@ -263,7 +265,7 @@ console.log(orders)
           <div className="p-8">
             {activeTab === 'profile' ? (
               <>
-                <div className="flex justify-between items-center mb-8">
+                <div className="flex justify-between items-center mb-8 ">
                   <div>
                     <h1 className="text-3xl font-semibold text-neutral-800 mb-2">Mi Perfil</h1>
                     <p className="text-neutral-600">Administra tu información personal</p>
@@ -367,6 +369,8 @@ console.log(orders)
         </div>
       </div>
     </div>
+
+    <Footer></Footer>
     </>
   );
 };

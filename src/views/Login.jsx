@@ -6,11 +6,12 @@ import { useForm } from 'react-hook-form';
 import { postLoginFn } from '../api/apiUser';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSession } from '../store/useSession';
 
 
 const Login = () => {
-  
+  const { login } = useSession();
   
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate()
@@ -31,9 +32,13 @@ const Login = () => {
 
       // Loguear al usuario
       login(data);
-
+      if (data.rol === true) {
+        navigate("/dashboard");
+      } else {
+        navigate("/");
+      }
       // Navegar a inicio (pero ya estando logueados)
-      navigate('/');
+  
     },
     onError: (err) => {
       Swal.close();
@@ -144,12 +149,12 @@ const Login = () => {
             <div className="text-center">
               <p className="text-xs text-neutral-500">
                 ¿No tienes una cuenta?{' '}
-                <a
-                  href="/registro"
+                <Link
+                  to={"/register"}
                   className="text-neutral-800 hover:underline font-medium"
                 >
-                  Regístrate
-                </a>
+                  Regístrates
+                </Link>
               </p>
             </div>
           </div>
