@@ -120,21 +120,15 @@ const HomePage = () => {
         clearLastAddedProduct={clearLastAddedProduct}
       />
 
-      {isCartOpen && (
-        <ShoppingCarts
-          cart={cart}
-          updateQuantity={(id, quantity) => {
-            // Find product and update quantity using store's addToCart
-            const product = cart.find(item => item._id === id);
-            if (product) {
-              addToCart({ ...product, quantity });
-            }
-          }}
-          removeFromCart={removeFromCart}
-          onClose={() => setIsCartOpen(false)}
-          onCheckout={() => setIsCheckoutOpen(true)}
-        />
-      )}
+{isCartOpen && (
+  <ShoppingCarts
+    cart={cart}
+    updateQuantity={updateQuantity}  // Usa directamente la función updateQuantity
+    removeFromCart={removeFromCart}
+    onClose={() => setIsCartOpen(false)}
+    onCheckout={() => setIsCheckoutOpen(true)}
+  />
+)}
 
       {isCheckoutOpen && (
         <CheckoutForm
