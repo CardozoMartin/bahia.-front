@@ -22,13 +22,20 @@ export const getProducts = async () => {
 
 // Obtener un producto por ID
 export const getProductById = async (id) => {
-    try {
-        const response = await api.get(`/${id}`);
-        return response.data;
-    } catch (error) {
-        console.error('Error al obtener producto:', error);
-        throw error;
+  if (!id) {
+    throw new Error('ID de producto no proporcionado');
+  }
+  
+  try {
+    const response = await api.get(`${API_URL}/products/${id}`);
+    if (!response.data) {
+      throw new Error('Producto no encontrado');
     }
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener producto:', error);
+    throw error;
+  }
 };
 
 // Crear un nuevo producto

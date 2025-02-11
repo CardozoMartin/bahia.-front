@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useQuery } from "@tanstack/react-query";
 import { getProducts } from "../../../api/apiProduct";
 import { Heart, ShoppingBag, Loader2, AlertCircle, Search } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 
 const ProductCars = ({ addToCart }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [visibleProducts, setVisibleProducts] = useState(8);
+  const navigate = useNavigate()
   
   const {
     data: products,
@@ -99,54 +101,59 @@ const ProductCars = ({ addToCart }) => {
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
           {displayedProducts.map((product) => (
-            <article
-              key={product.id}
-              className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
-            >
-              <div className="relative">
-                <div className="absolute top-3 right-3 z-10">
-                  <button
-                    className="p-1.5 rounded-full bg-white/80 backdrop-blur-sm hover:bg-rose-50 transition-colors group-hover:bg-rose-100"
-                    aria-label="Add to wishlist"
-                  >
-                    <Heart className="w-4 h-4 text-rose-400 group-hover:text-rose-500" />
-                  </button>
-                </div>
-                <div className="relative aspect-square overflow-hidden">
-                  <img
-                    src={product.imagen}
-                    alt={product.nombre}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-              </div>
-              <div className="p-4 lg:p-6">
-                <h3 className="text-sm lg:text-base font-serif text-rose-800 mb-1 lg:mb-2">
-                  {product.nombre}
-                </h3>
-                <p className="text-xs lg:text-sm text-rose-600 mb-3 lg:mb-4 line-clamp-2">
-                  {product.descripcion}
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-base lg:text-lg font-serif text-rose-800">
-                    ${product.precio.toLocaleString()}
-                  </span>
-                  {product.stock > 0 ? (
-                    <button
-                      onClick={() => addToCart(product)}
-                      className="flex items-center gap-1.5 bg-rose-400 text-white px-4 py-2 rounded-full hover:bg-rose-500 transition-colors shadow-sm hover:shadow-md"
-                    >
-                      <ShoppingBag className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
-                      <span className="text-xs lg:text-sm">Agregar</span>
-                    </button>
-                  ) : (
-                    <span className="text-xs lg:text-sm text-rose-500 font-serif">
-                      Sin stock
-                    </span>
-                  )}
-                </div>
-              </div>
-            </article>
+           <article
+           key={product.id}
+           className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer"
+           onClick={() => navigate(`/product/${product._id}`)}
+         >
+           <div className="relative">
+             <div className="absolute top-3 right-3 z-10">
+               <button
+                 className="p-1.5 rounded-full bg-white/80 backdrop-blur-sm hover:bg-rose-50 transition-colors group-hover:bg-rose-100"
+                 aria-label="Add to wishlist"
+                 onClick={(e) => e.stopPropagation()}
+               >
+                 <Heart className="w-4 h-4 text-rose-400 group-hover:text-rose-500" />
+               </button>
+             </div>
+             <div className="relative aspect-square overflow-hidden">
+               <img
+                 src={product.imagen}
+                 alt={product.nombre}
+                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+               />
+             </div>
+           </div>
+           <div className="p-4 lg:p-6">
+             <h3 className="text-sm lg:text-base font-serif text-rose-800 mb-1 lg:mb-2">
+               {product.nombre}
+             </h3>
+             <p className="text-xs lg:text-sm text-rose-600 mb-3 lg:mb-4 line-clamp-2">
+               {product.descripcion}
+             </p>
+             <div className="flex items-center justify-between">
+               <span className="text-base lg:text-lg font-serif text-rose-800">
+                 ${product.precio.toLocaleString()}
+               </span>
+               {product.stock > 0 ? (
+                 <button
+                   onClick={(e) => {
+                     e.stopPropagation();
+                     addToCart(product);
+                   }}
+                   className="flex items-center gap-1.5 bg-rose-400 text-white px-4 py-2 rounded-full hover:bg-rose-500 transition-colors shadow-sm hover:shadow-md"
+                 >
+                   <ShoppingBag className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
+                   <span className="text-xs lg:text-sm">Agregar</span>
+                 </button>
+               ) : (
+                 <span className="text-xs lg:text-sm text-rose-500 font-serif">
+                   Sin stock
+                 </span>
+               )}
+             </div>
+           </div>
+         </article>
           ))}
         </div>
 
