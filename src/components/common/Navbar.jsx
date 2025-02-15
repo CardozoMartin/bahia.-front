@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingBag, X, Menu, CircleUserRound, Heart } from 'lucide-react';
 import { useSession } from '../../store/useSession';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { toast } from 'sonner';
 
@@ -10,7 +10,7 @@ const Navbar = ({ cartItemCount, openCart, lastAddedProduct, clearLastAddedProdu
   const [showProductPreview, setShowProductPreview] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-
+const navigate = useNavigate()
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
@@ -91,7 +91,7 @@ const Navbar = ({ cartItemCount, openCart, lastAddedProduct, clearLastAddedProdu
               )}
               <p className="hidden lg:block text-rose-300">/</p>
               {user ? (
-                <Link to="/userdashboard" className="hidden lg:flex text-sm text-rose-600 hover:text-rose-800 transition-colors">
+                <Link to="/userprofile" className="hidden lg:flex text-sm text-rose-600 hover:text-rose-800 transition-colors">
                   Hola, {user.nombre}
                 </Link>
               ) : (

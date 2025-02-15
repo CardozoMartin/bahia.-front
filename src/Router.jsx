@@ -10,6 +10,8 @@ import UserDashboard from './views/UserDashboard';
 import ProductsAll from './views/ProductsAll';
 import { useSession } from './store/useSession';
 import ProductDetail from './views/ProductDetail';
+import UserProfile from './views/UserProfile';
+
 
 const Router = ({ addToCart }) => {
     const { user } = useSession();
@@ -41,6 +43,8 @@ const Router = ({ addToCart }) => {
                     />
 
                     {/* Other routes */}
+                    <Route path="/userprofile" element={<UserProfile />} />
+
                     <Route path="/" element={<HomePage />} />
                     <Route path="/info" element={<RingSizeGuide />} />
                     <Route path="/productall" element={<ProductsAll addToCart={addToCart} />} />

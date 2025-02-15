@@ -33,7 +33,6 @@ const ProductDetail = () => {
     queryFn: () => getProductById(id),
   });
 
-  console.log(product)
 
   // Cart management functions
   const addToCart = (product) => {

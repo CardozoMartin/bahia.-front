@@ -85,7 +85,7 @@ const FormProducts = ({ onSubmitSuccess }) => {
 
       // Usa el ID correcto (algunos backends usan _id, otros id)
       const productId = productToEdit._id || productToEdit.id;
-      console.log('Actualizando producto con ID:', productId); // Para debugging
+     
       
       return updateProduct(productId, formData);
     },
@@ -104,7 +104,7 @@ const FormProducts = ({ onSubmitSuccess }) => {
 
   const handleSubmit = (data) => {
     if (isEditing && productToEdit) {
-      console.log('Editando producto:', productToEdit); // Para debugging
+       // Para debugging
       putProduct(data);
     } else {
       postProduct(data);

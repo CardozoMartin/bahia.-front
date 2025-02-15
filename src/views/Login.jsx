@@ -29,10 +29,10 @@ const Login = () => {
       // Mensajes de exito
       Swal.close();
       toast.success('Bienvenido');
-
+      console.log(data)
       // Loguear al usuario
       login(data);
-      if (data.rol === true) {
+      if (data.rol) {
         navigate("/dashboard");
       } else {
         navigate("/");
@@ -47,7 +47,7 @@ const Login = () => {
   });
   // Manejo del envío del formulario
   const onSubmit = (data) => {
-    console.log('Datos enviados:', data);
+    console.log(data)
     postLogin(data);
   };
 

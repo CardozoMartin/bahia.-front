@@ -60,7 +60,7 @@ const FormProductOff = ({ product, onSubmitSuccess }) => {
         }
       });
 
-      console.log('Sending form data:', Object.fromEntries(formData));
+      
       return createProductOff(formData);
     },
     onSuccess: () => {
@@ -105,7 +105,7 @@ const FormProductOff = ({ product, onSubmitSuccess }) => {
   });
 
   const handleSubmit = (data) => {
-    console.log('Form data:', data);
+    
     if (isEditing) {
       putProductOff(data);
     } else {

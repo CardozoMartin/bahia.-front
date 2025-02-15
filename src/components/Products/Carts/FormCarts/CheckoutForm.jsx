@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
-import { 
-  Package, 
-  MapPin, 
-  User, 
-  CheckCircle2, 
-  ArrowRight, 
-  ArrowLeft, 
+import {
+  Package,
+  MapPin,
+  User,
+  CheckCircle2,
+  ArrowRight,
+  ArrowLeft,
   XCircle,
   CreditCard,
   Truck,
-  ShoppingBag
+  ShoppingBag,
+  Wallet
 } from 'lucide-react';
 import { postOrder } from '../../../../api/apiCart';
 import { useSession } from '../../../../store/useSession';
@@ -20,107 +21,75 @@ import { useNavigate } from 'react-router-dom';
 
 const CheckoutForm = ({ cart, onClose }) => {
   const { user } = useSession();
-  const navigate = useNavigate()
-
-  // Verificar si user es null o undefined antes de acceder a sus propiedades
+  console.log(user)
+  const navigate = useNavigate();
   const nombreCompleto = user ? `${user.nombre || ''} ${user.apellido || ''}`.trim() : '';
   const email = user?.email || '';
   const telefono = user?.telefono || '';
-  const ID = user?.idUser || '';
+  const ID = user?.id || '';
 
   const [formStep, setFormStep] = useState(1);
-  const { 
-    register, 
-    handleSubmit, 
-    formState: { errors }, 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
     watch,
-    trigger 
+    trigger
   } = useForm({
     mode: 'onChange',
     defaultValues: {
-      personalInfo: {
-        nombre: nombreCompleto, // Usar el valor seguro
-        email: email, // Usar el valor seguro
-        telefono: telefono, // Usar el valor seguro
-      },
-      shippingInfo: {
-        direccion: '',
-        ciudad: '',
-        codigoPostal: '',
-        notasAdicionales: ''
-      }
+      email: email,
+      telefono: telefono,
+      direccion: '',
+      codigoPostal: '',
+      descripcion: '',
+      modoPago: '',
+      idUser:ID,
+      productos: cart.map(item => ({
+        productoId: item._id,
+        cantidad: item.quantity
+      }))
     }
   });
 
-  const submitOrderMutation = useMutation({
-    mutationFn: postOrder,
-    onSuccess: (data) => {
-      setShowSuccess(true);
-      setTimeout(() => {
-        onClose();
-      }, 2000);
-    },
-    onError: (error) => {
-      alert('Error al crear el pedido');
-      console.error(error);
-    }
-  });
-
-  const [showSuccess, setShowSuccess] = useState(false);
-  const watchPersonalInfo = watch('personalInfo');
-  const watchShippingInfo = watch('shippingInfo');
-
-  const inputClasses = "mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200 transition-all duration-300 bg-white hover:border-indigo-300";
+  // Style classes remain the same...
+  const inputClasses = "mt-1 block w-full rounded-md border border-gray-200 px-4 py-3 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200 transition-all duration-300 bg-white hover:border-amber-300 text-gray-800";
   const labelClasses = "block text-sm font-medium text-gray-700 flex items-center";
+  const buttonClasses = "flex items-center justify-center px-6 py-3 bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-all duration-300 font-medium";
+  const secondaryButtonClasses = "flex items-center justify-center px-6 py-3 border border-gray-300 rounded-md hover:bg-gray-50 transition-all duration-300 text-gray-700";
 
   const renderPersonalInfoStep = () => (
     <div className="space-y-6">
-      <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-        <User className="mr-2 text-indigo-600" size={20} />
-        Información Personal
+      <h3 className="text-xl font-serif text-gray-800 flex items-center">
+        <User className="mr-2 text-amber-600" size={20} />
+        Información de Contacto
       </h3>
-      
-      <div className="space-y-4">
-        <div>
-          <label htmlFor="nombre" className={labelClasses}>Nombre Completo</label>
-          <input
-            {...register("personalInfo.nombre", { 
-              required: "El nombre es requerido",
-              minLength: { value: 2, message: "El nombre debe tener al menos 2 caracteres" }
-            })}
-            className={inputClasses}
-            placeholder="Ingresa tu nombre completo"
-          />
-          {errors.personalInfo?.nombre && (
-            <p className="mt-1 text-sm text-red-600">{errors.personalInfo.nombre.message}</p>
-          )}
-        </div>
 
+      <div className="space-y-4">
         <div>
           <label htmlFor="email" className={labelClasses}>Email</label>
           <input
-            {...register("personalInfo.email", {
+            {...register("email", {
               required: "El email es requerido",
-              pattern: { 
+              pattern: {
                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                 message: "Email inválido"
               }
             })}
-            type="email"
             className={inputClasses}
             placeholder="tu@email.com"
           />
-          {errors.personalInfo?.email && (
-            <p className="mt-1 text-sm text-red-600">{errors.personalInfo.email.message}</p>
+          {errors.email && (
+            <p className="mt-1 text-sm text-rose-600">{errors.email.message}</p>
           )}
         </div>
 
         <div>
           <label htmlFor="telefono" className={labelClasses}>Teléfono</label>
           <input
-            {...register("personalInfo.telefono", {
+            {...register("telefono", {
               required: "El teléfono es requerido",
-              pattern: { 
+              pattern: {
                 value: /^[0-9]{10}$/,
                 message: "Debe ser un número de 10 dígitos"
               }
@@ -128,8 +97,8 @@ const CheckoutForm = ({ cart, onClose }) => {
             className={inputClasses}
             placeholder="1234567890"
           />
-          {errors.personalInfo?.telefono && (
-            <p className="mt-1 text-sm text-red-600">{errors.personalInfo.telefono.message}</p>
+          {errors.telefono && (
+            <p className="mt-1 text-sm text-rose-600">{errors.telefono.message}</p>
           )}
         </div>
       </div>
@@ -137,8 +106,8 @@ const CheckoutForm = ({ cart, onClose }) => {
       <div className="flex justify-end mt-6">
         <button
           type="button"
-          onClick={nextStep}
-          className="flex items-center justify-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          onClick={() => nextStep()}
+          className={buttonClasses}
         >
           Siguiente
           <ArrowRight className="ml-2" size={20} />
@@ -149,46 +118,32 @@ const CheckoutForm = ({ cart, onClose }) => {
 
   const renderShippingInfoStep = () => (
     <div className="space-y-6">
-      <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-        <Truck className="mr-2 text-indigo-600" size={20} />
+      <h3 className="text-xl font-serif text-gray-800 flex items-center">
+        <Truck className="mr-2 text-amber-600" size={20} />
         Información de Envío
       </h3>
-      
+
       <div className="space-y-4">
         <div>
           <label htmlFor="direccion" className={labelClasses}>Dirección</label>
           <input
-            {...register("shippingInfo.direccion", { 
+            {...register("direccion", {
               required: "La dirección es requerida"
             })}
             className={inputClasses}
             placeholder="Ingresa tu dirección completa"
           />
-          {errors.shippingInfo?.direccion && (
-            <p className="mt-1 text-sm text-red-600">{errors.shippingInfo.direccion.message}</p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="ciudad" className={labelClasses}>Ciudad</label>
-          <input
-            {...register("shippingInfo.ciudad", { 
-              required: "La ciudad es requerida"
-            })}
-            className={inputClasses}
-            placeholder="Ciudad"
-          />
-          {errors.shippingInfo?.ciudad && (
-            <p className="mt-1 text-sm text-red-600">{errors.shippingInfo.ciudad.message}</p>
+          {errors.direccion && (
+            <p className="mt-1 text-sm text-rose-600">{errors.direccion.message}</p>
           )}
         </div>
 
         <div>
           <label htmlFor="codigoPostal" className={labelClasses}>Código Postal</label>
           <input
-            {...register("shippingInfo.codigoPostal", {
+            {...register("codigoPostal", {
               required: "El código postal es requerido",
-              pattern: { 
+              pattern: {
                 value: /^[0-9]{5}$/,
                 message: "Debe ser un código postal válido de 5 dígitos"
               }
@@ -196,15 +151,15 @@ const CheckoutForm = ({ cart, onClose }) => {
             className={inputClasses}
             placeholder="12345"
           />
-          {errors.shippingInfo?.codigoPostal && (
-            <p className="mt-1 text-sm text-red-600">{errors.shippingInfo.codigoPostal.message}</p>
+          {errors.codigoPostal && (
+            <p className="mt-1 text-sm text-rose-600">{errors.codigoPostal.message}</p>
           )}
         </div>
 
         <div>
-          <label htmlFor="notasAdicionales" className={labelClasses}>Notas Adicionales (opcional)</label>
+          <label htmlFor="descripcion" className={labelClasses}>Notas Adicionales</label>
           <textarea
-            {...register("shippingInfo.notasAdicionales")}
+            {...register("descripcion")}
             className={inputClasses}
             rows={3}
             placeholder="Instrucciones especiales de entrega..."
@@ -216,15 +171,15 @@ const CheckoutForm = ({ cart, onClose }) => {
         <button
           type="button"
           onClick={prevStep}
-          className="flex items-center justify-center px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          className={secondaryButtonClasses}
         >
           <ArrowLeft className="mr-2" size={20} />
           Anterior
         </button>
         <button
           type="button"
-          onClick={nextStep}
-          className="flex items-center justify-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          onClick={() => nextStep()}
+          className={buttonClasses}
         >
           Siguiente
           <ArrowRight className="ml-2" size={20} />
@@ -233,161 +188,201 @@ const CheckoutForm = ({ cart, onClose }) => {
     </div>
   );
 
-  const renderReviewStep = () => (
+  const renderPaymentStep = () => (
     <div className="space-y-6">
-      <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-        <CheckCircle2 className="mr-2 text-indigo-600" size={20} />
-        Revisar y Confirmar
+      <h3 className="text-xl font-serif text-gray-800 flex items-center">
+        <Wallet className="mr-2 text-amber-600" size={20} />
+        Método de Pago
       </h3>
 
       <div className="space-y-4">
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <h4 className="font-medium text-gray-700 mb-2">Información Personal</h4>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <p className="text-gray-500">Nombre:</p>
-              <p className="font-medium">{watchPersonalInfo.nombre}</p>
+        <div className="grid grid-cols-1 gap-4">
+          <label className={`relative border rounded-lg p-4 cursor-pointer transition-all duration-300 ${
+            watch('modoPago') === 'transferencia' 
+              ? 'border-amber-500 bg-amber-50' 
+              : 'border-gray-200 hover:border-amber-200'
+          }`}>
+            <input
+              type="radio"
+              {...register("modoPago", {
+                required: "Por favor selecciona un método de pago"
+              })}
+              value="transferencia"
+              className="sr-only"
+            />
+            <div className="flex items-center">
+              <div className={`w-5 h-5 border rounded-full mr-3 flex items-center justify-center ${
+                watch('modoPago') === 'transferencia' 
+                  ? 'border-amber-500' 
+                  : 'border-gray-300'
+              }`}>
+                {watch('modoPago') === 'transferencia' && (
+                  <div className="w-3 h-3 rounded-full bg-amber-500" />
+                )}
+              </div>
+              <div className="flex-1">
+                <h4 className="font-medium text-gray-900">Transferencia Bancaria</h4>
+                <p className="text-sm text-gray-500">Realiza una transferencia directa a nuestra cuenta bancaria</p>
+              </div>
             </div>
-            <div>
-              <p className="text-gray-500">Teléfono:</p>
-              <p className="font-medium">{watchPersonalInfo.telefono}</p>
+          </label>
+
+          <label className={`relative border rounded-lg p-4 cursor-pointer transition-all duration-300 ${
+            watch('modoPago') === 'mercado_pago' 
+              ? 'border-amber-500 bg-amber-50' 
+              : 'border-gray-200 hover:border-amber-200'
+          }`}>
+            <input
+              type="radio"
+              {...register("modoPago", {
+                required: "Por favor selecciona un método de pago"
+              })}
+              value="mercado_pago"
+              className="sr-only"
+            />
+            <div className="flex items-center">
+              <div className={`w-5 h-5 border rounded-full mr-3 flex items-center justify-center ${
+                watch('modoPago') === 'mercado_pago' 
+                  ? 'border-amber-500' 
+                  : 'border-gray-300'
+              }`}>
+                {watch('modoPago') === 'mercado_pago' && (
+                  <div className="w-3 h-3 rounded-full bg-amber-500" />
+                )}
+              </div>
+              <div className="flex-1">
+                <h4 className="font-medium text-gray-900">MercadoPago</h4>
+                <p className="text-sm text-gray-500">Paga con tarjeta de crédito/débito a través de MercadoPago</p>
+              </div>
             </div>
-          </div>
-            <div>
-              <p className="text-gray-500">Email:</p>
-              <p className="font-medium">{watchPersonalInfo.email}</p>
-            </div>
+          </label>
         </div>
 
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <h4 className="font-medium text-gray-700 mb-2">Información de Envío</h4>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <p className="text-gray-500">Dirección:</p>
-              <p className="font-medium">{watchShippingInfo.direccion}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Ciudad:</p>
-              <p className="font-medium">{watchShippingInfo.ciudad}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Código Postal:</p>
-              <p className="font-medium">{watchShippingInfo.codigoPostal}</p>
-            </div>
-          </div>
-          {watchShippingInfo.notasAdicionales && (
-            <div className="mt-2">
-              <p className="text-gray-500">Notas Adicionales:</p>
-              <p className="font-medium">{watchShippingInfo.notasAdicionales}</p>
-            </div>
-          )}
-        </div>
+        {errors.modoPago && (
+          <p className="mt-1 text-sm text-rose-600">{errors.modoPago.message}</p>
+        )}
       </div>
 
       <div className="flex justify-between mt-6">
         <button
           type="button"
           onClick={prevStep}
-          className="flex items-center justify-center px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          className={secondaryButtonClasses}
         >
           <ArrowLeft className="mr-2" size={20} />
           Anterior
         </button>
         <button
-          type="button"
+          type="submit"
           onClick={handleSubmit(onFinalSubmit)}
-          className="flex items-center justify-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-          disabled={submitOrderMutation.isLoading}
+          className={buttonClasses}
         >
-          {submitOrderMutation.isLoading ? (
-            <span>Procesando...</span>
-          ) : (
-            <>
-              Confirmar Pedido
-              <CheckCircle2 className="ml-2" size={20} />
-            </>
-          )}
+          Confirmar Pedido
+          <CheckCircle2 className="ml-2" size={20} />
         </button>
       </div>
     </div>
   );
 
-  const StepIndicator = ({ currentStep, totalSteps }) => (
-    <div className="relative pt-4">
-      <div className="flex justify-between items-center mb-6">
-        {[...Array(totalSteps)].map((_, index) => {
-          const step = index + 1;
-          const isActive = step === currentStep;
-          const isCompleted = step < currentStep;
+  const clearCart = useCartStore((state) => state.clearCart);
+  
+  const onFinalSubmit = async (data) => {
+    const orderData = {
+      ...data,
+      estado: 'pendiente',
+      estadoPedido: 'armando',
+      estadoPago: 'pendiente',
+      idUser: ID,
+      productos: cart.map(item => ({
+        productoId: item._id,
+        cantidad: item.quantity
+      }))
+    };
 
-          return (
-            <div key={step} className="flex flex-col items-center flex-1">
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 ${
-                  isActive ? 'bg-indigo-600 text-white transform scale-110' :
-                  isCompleted ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
-                }`}
-              >
-                {isCompleted ? <CheckCircle2 size={16} /> : step}
-              </div>
-              <div className="text-xs mt-2 font-medium text-gray-600">
-                {step === 1 ? "Datos" : step === 2 ? "Envío" : "Revisar"}
-              </div>
-              {step < totalSteps && (
-                <div
-                  className={`absolute top-7 left-0 h-0.5 transition-all duration-500 ${
-                    step < currentStep ? 'bg-green-500' : 'bg-gray-200'
-                  }`}
-                  style={{
-                    width: `${(100 / (totalSteps - 1))}%`,
-                    transform: `translateX(${(step - 1) * 100}%)`
-                  }}
-                />
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
+    try {
+      await submitOrderMutation.mutateAsync(orderData);
+      clearCart();
+      setShowSuccess(true);
+      setTimeout(() => {
+        onClose();
+        navigate("/");
+      }, 2000);
+    } catch (error) {
+      alert('Error al crear el pedido');
+      console.error(error);
+    }
+  };
 
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const submitOrderMutation = useMutation({
+    mutationFn: postOrder,
+    onSuccess: () => {
+      setShowSuccess(true);
+    },
+    onError: (error) => {
+      console.error(error);
+      alert('Error al crear el pedido');
+    }
+  });
+
+  const nextStep = async () => {
+    const fieldsToValidate = {
+      1: ['email', 'telefono'],
+      2: ['direccion', 'codigoPostal'],
+      3: ['modoPago']
+    };
+
+    const currentFields = fieldsToValidate[formStep];
+    const isValid = await trigger(currentFields);
+
+    if (isValid) {
+      setFormStep(formStep + 1);
+    }
+  };
+
+  const prevStep = () => {
+    setFormStep(formStep - 1);
+  };
+
+  // CartSummary component remains the same...
   const CartSummary = () => {
     const total = cart.reduce((sum, item) => sum + (item.precio * item.quantity), 0);
-    
+
     return (
-      <div className="bg-gray-50 rounded-lg p-4 mt-4">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-            <ShoppingBag className="mr-2 text-indigo-600" size={20} />
-            Resumen del Carrito
+      <div className="bg-amber-50 rounded-lg p-6 mt-4 border border-amber-100">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-serif text-gray-800 flex items-center">
+            <ShoppingBag className="mr-2 text-amber-600" size={20} />
+            Tu Selección
           </h3>
-          <span className="text-sm text-gray-600">{cart.length} productos</span>
+          <span className="text-sm text-gray-600">{cart.length} piezas</span>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-4">
           {cart.map((item) => (
-            <div key={item._id} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12">
+            <div key={item._id} className="flex justify-between items-center py-3 border-b border-amber-200 last:border-b-0">
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16">
                   <img
                     src={item.imagen}
                     alt={item.nombre}
-                    className="w-full h-full object-cover rounded"
+                    className="w-full h-full object-cover rounded-md shadow-sm"
                   />
                 </div>
                 <div>
-                  <p className="font-medium text-gray-800">{item.nombre}</p>
+                  <p className="font-serif text-gray-800">{item.nombre}</p>
                   <p className="text-sm text-gray-600">Cantidad: {item.quantity}</p>
                 </div>
               </div>
-              <span className="font-semibold text-indigo-600">
+              <span className="font-medium text-amber-800">
                 ${(item.precio * item.quantity).toFixed(2)}
               </span>
             </div>
           ))}
-          <div className="pt-3 border-t border-gray-200">
+          <div className="pt-4 border-t border-amber-200">
             <div className="flex justify-between items-center">
-              <span className="font-medium text-gray-700">Total</span>
-              <span className="text-xl font-bold text-indigo-600">
+              <span className="font-serif text-gray-800">Total</span>
+              <span className="text-xl font-bold text-amber-800">
                 ${total.toFixed(2)}
               </span>
             </div>
@@ -397,100 +392,46 @@ const CheckoutForm = ({ cart, onClose }) => {
     );
   };
 
-  const nextStep = async () => {
-    let isValid = false;
-
-    switch(formStep) {
-      case 1:
-        isValid = await trigger('personalInfo');
-        if (isValid) setFormStep(2);
-        break;
-      case 2:
-        isValid = await trigger('shippingInfo');
-        if (isValid) setFormStep(3);
-        break;
-    }
-  };
-
-  const prevStep = () => {
-    setFormStep(formStep - 1);
-  };
-
-  const clearCart = useCartStore((state) => state.clearCart);
-  const onFinalSubmit = async (data) => {
-    const id = user?.id || ""; // Asegúrate de que `id` sea un string vacío si no existe
-  
-    const pedidoData = {
-      ...data.personalInfo,
-      ...data.shippingInfo,
-      productos: cart.map(item => ({
-        productoId: item._id,
-        cantidad: item.quantity,
-        nombre: item.nombre,
-        precio: item.precio
-      })),
-      total: cart.reduce((total, item) => total + (item.precio * item.quantity), 0),
-      estado: 'pendiente',
-      estadoPedido: 'armando',
-      idUser: id, // Aquí se incluye el `id` del usuario
-    };
-  
-    try {
-      await submitOrderMutation.mutateAsync(pedidoData); // Enviar el pedido
-      clearCart(); // Limpiar el carrito después de enviar el pedido
-      setShowSuccess(true); // Mostrar mensaje de éxito
-      setTimeout(() => {
-        onClose();
-        navigate("/") // Cerrar el modal después de 2 segundos
-      }, 1000);
-    } catch (error) {
-      alert('Error al crear el pedido');
-      console.error(error);
-    }
-  };
-
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex justify-center items-center p-4 overflow-y-auto backdrop-blur-sm">
-  <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto p-6 border border-gray-200">
-    {showSuccess ? (
-      <div className="flex flex-col items-center justify-center py-12 space-y-4">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-          <CheckCircle2 className="w-10 h-10 text-green-500" />
-        </div>
-        <h2 className="text-2xl font-bold text-gray-800">¡Pedido Confirmado!</h2>
-        <p className="text-gray-600">Gracias por tu compra. Recibirás un email con los detalles.</p>
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex justify-center items-center p-4 overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl mx-auto p-8 border border-amber-100">
+      {showSuccess ? (
+          <div className="flex flex-col items-center justify-center py-12 space-y-4">
+            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center">
+              <CheckCircle2 className="w-10 h-10 text-amber-600" />
+            </div>
+            <h2 className="text-2xl font-serif text-gray-800">¡Gracias por tu Compra!</h2>
+            <p className="text-gray-600">Recibirás un email con los detalles de tu pedido.</p>
+          </div>
+        ) : (
+          <>
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-2xl font-serif text-amber-800 flex items-center">
+                Finalizar Compra
+              </h2>
+              <button
+                onClick={onClose}
+                className="text-gray-400 hover:text-amber-600 transition-colors rounded-full p-1"
+              >
+                <XCircle size={28} />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+              <div className="order-2 md:order-1">
+                {formStep === 1 && renderPersonalInfoStep()}
+                {formStep === 2 && renderShippingInfoStep()}
+                {formStep === 3 && renderPaymentStep()}
+              </div>
+
+              <div className="order-1 md:order-2">
+                <CartSummary />
+              </div>
+            </div>
+          </>
+        )}
       </div>
-    ) : (
-      <>
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-indigo-700 flex items-center">
-            Checkout
-          </h2>
-          <button 
-            onClick={onClose} 
-            className="text-gray-500 hover:text-indigo-600 transition-colors rounded-full p-1"
-          >
-            <XCircle size={28} />
-          </button>
-        </div>
-
-        <StepIndicator currentStep={formStep} totalSteps={3} />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-          <div className="order-2 md:order-1">
-            {formStep === 1 && renderPersonalInfoStep()}
-            {formStep === 2 && renderShippingInfoStep()}
-            {formStep === 3 && renderReviewStep()}
-          </div>
-          
-          <div className="order-1 md:order-2">
-            <CartSummary />
-          </div>
-        </div>
-      </>
-    )}
-  </div>
-</div>
+    </div>
   );
 };
 

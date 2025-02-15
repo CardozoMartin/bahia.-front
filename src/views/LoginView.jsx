@@ -28,11 +28,12 @@ const LoginView = () => {
             toast.success('¡Bienvenida de nuevo!');
             login(userData);
             
-            if (userData.rol === true) {
+            if (userData.isAdmin === true || userData.isAdmin === "true") {
                 navigate("/dashboard");
             } else {
                 navigate("/");
             }
+            
         },
         onError: (err) => {
             Swal.close();
@@ -41,7 +42,6 @@ const LoginView = () => {
     });
 
     const onSubmit = (data) => {
-        console.log('Datos enviados:', data);
         postLogin(data);
     };
 

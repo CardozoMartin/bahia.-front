@@ -17,10 +17,10 @@ const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState('profile');
   
   const [userData, setUserData] = useState({
-    nombre: user.nombre,
-    apellido: user.apellido,
-    email: user.email,
-    telefono: user.telefono
+    nombre: user?.nombre || '',
+    apellido: user?.apellido || '',
+    email: user?.email || '',
+    telefono: user?.telefono || ''
   });
 
   const { data: allOrders, isLoading, error } = useQuery({
@@ -28,7 +28,7 @@ const UserDashboard = () => {
     queryFn: getOrders
   });
   
-  const orders = allOrders?.filter(order => order.idUser === user.id) || [];
+  const orders = allOrders?.filter(order => order?.idUser === user?.id) || [];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -144,12 +144,24 @@ const UserDashboard = () => {
   });
 
   const Order = ({ order }) => {
-    const status = getStatusStyles(order.estado);
-    const total = order.productos.reduce((sum, prod) => 
-      sum + (prod.productoId.precio * prod.cantidad), 0
-    );
+   // Safely handle potentially missing data
+   if (!order || !order.productos) {
+    return null;
+  }
 
-    const formatDate = (dateString) => {
+  const status = getStatusStyles(order.estado);
+  
+  // Add safe guards for price calculation
+  const total = order.productos.reduce((sum, prod) => {
+    // Check if product and its related data exists
+    if (!prod || !prod.productoId || typeof prod.productoId.precio !== 'number' || typeof prod.cantidad !== 'number') {
+      return sum;
+    }
+    return sum + (prod.productoId.precio * prod.cantidad);
+  }, 0);
+
+  const formatDate = (dateString) => {
+    try {
       return new Date(dateString).toLocaleDateString('es-ES', {
         year: 'numeric',
         month: 'long',
@@ -157,86 +169,94 @@ const UserDashboard = () => {
         hour: '2-digit',
         minute: '2-digit'
       });
-    };
+    } catch (e) {
+      return 'Fecha no disponible';
+    }
+  };
 
-    return (
-      <div className="mb-6 bg-white rounded-3xl shadow-sm overflow-hidden transition-all hover:shadow-lg border border-pink-100">
-        <div 
-          onClick={() => setExpandedOrder(order._id === expandedOrder ? null : order._id)}
-          className={`${status.color} p-6 text-white flex items-center justify-between cursor-pointer hover:opacity-90 transition-opacity`}
-        >
-          <div className="flex items-center space-x-3">
-            {status.icon}
-            <span className="font-serif">{status.text}</span>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="text-sm flex flex-col items-end font-serif">
-              <span>Pedido #{order._id?.slice(-6)}</span>
-              <span className="text-xs">{formatDate(order.createdAt)}</span>
-            </div>
-            <ChevronRight className={`w-5 h-5 transition-transform ${expandedOrder === order._id ? 'rotate-90' : ''}`} />
-          </div>
+  return (
+    <div className="mb-6 bg-white rounded-3xl shadow-sm overflow-hidden transition-all hover:shadow-lg border border-pink-100">
+      <div 
+        onClick={() => setExpandedOrder(order._id === expandedOrder ? null : order._id)}
+        className={`${status.color} p-6 text-white flex items-center justify-between cursor-pointer hover:opacity-90 transition-opacity`}
+      >
+        <div className="flex items-center space-x-3">
+          {status.icon}
+          <span className="font-serif">{status.text}</span>
         </div>
+        <div className="flex items-center space-x-4">
+          <div className="text-sm flex flex-col items-end font-serif">
+            <span>Pedido #{order._id?.slice(-6) || 'N/A'}</span>
+            <span className="text-xs">{formatDate(order.createdAt)}</span>
+          </div>
+          <ChevronRight className={`w-5 h-5 transition-transform ${expandedOrder === order._id ? 'rotate-90' : ''}`} />
+        </div>
+      </div>
 
-        {expandedOrder === order._id && (
-          <div className="p-8">
-            {order.estado === 'aceptado' && <OrderTimeline estadoPedido={order.estadoPedido} />}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-              <div className="space-y-4 bg-pink-50 p-6 rounded-2xl">
-                <h3 className="font-serif text-lg mb-4 text-neutral-800 border-b border-pink-200 pb-2">
-                  Detalles de Entrega
-                </h3>
-                {[
-                  { icon: <Mail className="w-5 h-5 text-rose-400" />, text: order.email },
-                  { icon: <Phone className="w-5 h-5 text-rose-400" />, text: order.telefono },
-                  { icon: <MapPin className="w-5 h-5 text-rose-400" />, text: order.direccion }
-                ].map((item, index) => (
-                  <div key={index} className="flex items-center space-x-3 hover:bg-white p-3 rounded-xl transition-colors">
-                    {item.icon}
-                    <span className="text-neutral-700 font-serif">{item.text}</span>
-                  </div>
-                ))}
-              </div>
+      {expandedOrder === order._id && (
+        <div className="p-8">
+          {order.estado === 'aceptado' && <OrderTimeline estadoPedido={order.estadoPedido} />}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+            <div className="space-y-4 bg-pink-50 p-6 rounded-2xl">
+              <h3 className="font-serif text-lg mb-4 text-neutral-800 border-b border-pink-200 pb-2">
+                Detalles de Entrega
+              </h3>
+              {[
+                { icon: <Mail className="w-5 h-5 text-rose-400" />, text: order.email || 'No disponible' },
+                { icon: <Phone className="w-5 h-5 text-rose-400" />, text: order.telefono || 'No disponible' },
+                { icon: <MapPin className="w-5 h-5 text-rose-400" />, text: order.direccion || 'No disponible' }
+              ].map((item, index) => (
+                <div key={index} className="flex items-center space-x-3 hover:bg-white p-3 rounded-xl transition-colors">
+                  {item.icon}
+                  <span className="text-neutral-700 font-serif">{item.text}</span>
+                </div>
+              ))}
+            </div>
 
-              <div>
-                <h3 className="font-serif text-lg mb-4 text-neutral-800 border-b border-pink-200 pb-2">
-                  Tus Joyas
-                </h3>
-                <div className="space-y-4">
-                  {order.productos.map((product) => (
-                    <div key={product._id} className="flex justify-between items-center bg-pink-50 p-4 rounded-2xl hover:bg-pink-100 transition-colors">
+            <div>
+              <h3 className="font-serif text-lg mb-4 text-neutral-800 border-b border-pink-200 pb-2">
+                Tus Joyas
+              </h3>
+              <div className="space-y-4">
+                {order.productos.map((product) => {
+                  // Skip invalid products
+                  if (!product || !product.productoId) return null;
+
+                  return (
+                    <div key={product._id || Math.random()} className="flex justify-between items-center bg-pink-50 p-4 rounded-2xl hover:bg-pink-100 transition-colors">
                       <div className="flex items-start space-x-4">
                         <img 
-                          src={product.productoId.imagen} 
-                          alt={product.productoId.nombre}
+                          src={product.productoId.imagen || '/placeholder-image.jpg'} 
+                          alt={product.productoId.nombre || 'Producto'}
                           className="w-24 h-24 object-cover rounded-2xl shadow-sm"
                         />
                         <div className="font-serif">
-                          <p className="font-medium text-neutral-800">{product.productoId.nombre}</p>
-                          <p className="text-sm text-neutral-600">Color: {product.productoId.color}</p>
-                          <p className="text-sm text-neutral-600">Cantidad: {product.cantidad}</p>
+                          <p className="font-medium text-neutral-800">{product.productoId.nombre || 'Producto no disponible'}</p>
+                          <p className="text-sm text-neutral-600">Color: {product.productoId.color || 'N/A'}</p>
+                          <p className="text-sm text-neutral-600">Cantidad: {product.cantidad || 0}</p>
                         </div>
                       </div>
                       <div className="text-right font-serif">
                         <span className="font-medium text-rose-500">
-                          ${(product.productoId.precio * product.cantidad).toFixed(2)}
+                          ${((product.productoId.precio || 0) * (product.cantidad || 0)).toFixed(2)}
                         </span>
-                        <p className="text-sm text-neutral-600">${product.productoId.precio} c/u</p>
+                        <p className="text-sm text-neutral-600">${(product.productoId.precio || 0).toFixed(2)} c/u</p>
                       </div>
                     </div>
-                  ))}
-                </div>
-                <div className="mt-6 pt-4 border-t border-pink-200 flex justify-between items-center bg-pink-50 p-6 rounded-2xl">
-                  <span className="font-serif text-neutral-800">Total</span>
-                  <span className="font-serif text-lg text-rose-500">${total.toFixed(2)}</span>
-                </div>
+                  );
+                })}
+              </div>
+              <div className="mt-6 pt-4 border-t border-pink-200 flex justify-between items-center bg-pink-50 p-6 rounded-2xl">
+                <span className="font-serif text-neutral-800">Total</span>
+                <span className="font-serif text-lg text-rose-500">${total.toFixed(2)}</span>
               </div>
             </div>
           </div>
-        )}
-      </div>
-    );
-  };
+        </div>
+      )}
+    </div>
+  );
+};
 
   return (
     <>

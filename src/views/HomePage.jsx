@@ -9,12 +9,14 @@ import PromotionalCarousel from '../components/Products/FormProducts/Promotional
 import WhatsAppButton from '../components/Utils/WhatsAppButton';
 import { useQuery } from '@tanstack/react-query';
 import { getProductsOff } from '../api/apiProductOffert';
+import { useSession } from '../store/useSession';
 
 const HomePage = () => {
   const [cart, setCart] = useState(loadCartFromLocalStorage());
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [lastAddedProduct, setLastAddedProduct] = useState(null);
+  const { user } = useSession()
 
   useEffect(() => {
     // Al cargar el componente, asegurarse de que el carrito se guarda en localStorage
@@ -98,7 +100,7 @@ const HomePage = () => {
     queryFn: getProductsOff,
   });
 
-  console.log(productsOff)
+  
   const promotionalProducts = [
     {
       _id: 'promo1',
