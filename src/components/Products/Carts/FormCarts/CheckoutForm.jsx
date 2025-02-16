@@ -305,7 +305,7 @@ const CheckoutForm = ({ cart, onClose }) => {
       setShowSuccess(true);
       setTimeout(() => {
         onClose();
-        navigate("/");
+        navigate("/userprofile");
       }, 2000);
     } catch (error) {
       alert('Error al crear el pedido');

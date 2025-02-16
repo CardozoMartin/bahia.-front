@@ -74,8 +74,8 @@ const navigate = useNavigate()
             <div className="hidden lg:flex items-center space-x-8">
               <Link to="/" className="nav-link text-rose-700 hover:text-rose-900 transition-colors font-light">Inicio</Link>
               <Link to="/productall" className="nav-link text-rose-700 hover:text-rose-900 transition-colors font-light">Productos</Link>
-              <Link to="/dashboard" className="nav-link text-rose-700 hover:text-rose-900 transition-colors font-light">Ayuda</Link>
-              <Link to="/dashboard" className="nav-link text-rose-700 hover:text-rose-900 transition-colors font-light">Contáctanos</Link>
+              <Link to="/help" className="nav-link text-rose-700 hover:text-rose-900 transition-colors font-light">Ayuda</Link>
+              <Link to="/contact" className="nav-link text-rose-700 hover:text-rose-900 transition-colors font-light">Contáctanos</Link>
             </div>
 
             {/* Cart & Account Links */}
@@ -209,14 +209,14 @@ const navigate = useNavigate()
                   Productos
                 </Link>
                 <Link
-                  to="/dashboard"
+                  to="/help"
                   className="text-lg font-serif text-rose-700 hover:text-rose-900 transition-colors"
                   onClick={toggleMobileMenu}
                 >
                   Ayuda
                 </Link>
                 <Link
-                  to="/dashboard"
+                  to="/contact"
                   className="text-lg font-serif text-rose-700 hover:text-rose-900 transition-colors"
                   onClick={toggleMobileMenu}
                 >

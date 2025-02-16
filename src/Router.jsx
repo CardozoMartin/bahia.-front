@@ -11,6 +11,8 @@ import ProductsAll from './views/ProductsAll';
 import { useSession } from './store/useSession';
 import ProductDetail from './views/ProductDetail';
 import UserProfile from './views/UserProfile';
+import HelpSection from './views/HelpSection';
+import ContactSection from './views/ContactSection';
 
 
 const Router = ({ addToCart }) => {
@@ -44,6 +46,8 @@ const Router = ({ addToCart }) => {
 
                     {/* Other routes */}
                     <Route path="/userprofile" element={<UserProfile />} />
+                    <Route path="/help" element={<HelpSection />} />
+                    <Route path="/contact" element={<ContactSection />} />
 
                     <Route path="/" element={<HomePage />} />
                     <Route path="/info" element={<RingSizeGuide />} />

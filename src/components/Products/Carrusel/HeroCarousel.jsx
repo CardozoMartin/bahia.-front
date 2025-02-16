@@ -14,7 +14,7 @@ const HeroCarousel = () => {
     queryKey: ["banners"],
     queryFn: getBanner,
   });
-
+console.log(banners)
   useEffect(() => {
     if (banners && banners.length > 0 && !isHovered) {
       const timer = setInterval(() => {

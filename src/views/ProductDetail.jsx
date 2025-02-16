@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Heart, ShoppingBag, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+import { Heart, ShoppingBag, ArrowLeft, Loader2, AlertCircle, CreditCard } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getProductById } from '../api/apiProduct';
 import Navbar from '../components/common/Navbar';
@@ -12,7 +12,7 @@ import CheckoutForm from '../components/Products/Carts/FormCarts/CheckoutForm';
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   // Add cart-related state
   const [cart, setCart] = useState(loadCartFromLocalStorage());
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -38,7 +38,7 @@ const ProductDetail = () => {
   const addToCart = (product) => {
     setCart(prevCart => {
       const existingProductIndex = prevCart.findIndex(item => item._id === product._id);
-      
+
       if (existingProductIndex !== -1) {
         const updatedCart = [...prevCart];
         updatedCart[existingProductIndex] = {
@@ -90,6 +90,29 @@ const ProductDetail = () => {
       alert('Hubo un problema al procesar tu pedido');
     }
   };
+
+  const paymentMethods = [
+    {
+      name: 'Mercado Pago',
+      description: 'Pago seguro con tu cuenta de Mercado Pago'
+    },
+    {
+      name: 'Transferencia Bancaria',
+      description: 'Transferencia directa a nuestra cuenta bancaria'
+    },
+    {
+      name: 'Rapi Pago',
+      description: 'Pago en efectivo en sucursales Rapi Pago'
+    },
+    {
+      name: 'Pago Fácil',
+      description: 'Pago en efectivo en sucursales Pago Fácil'
+    },
+    {
+      name: 'Tarjeta de Crédito',
+      description: 'Pago con todas las tarjetas de crédito'
+    }
+  ];
 
   if (isLoading) {
     return (
@@ -205,6 +228,18 @@ const ProductDetail = () => {
                       <h3 className="text-sm font-medium text-rose-600">Color</h3>
                       <p className="text-rose-800">{product.color}</p>
                     </div>
+                  </div>
+                </div>
+                <div className="space-y-4 pt-6 border-t border-rose-100">
+                  <h2 className="text-xl font-serif text-rose-800 mb-4">Métodos de Pago</h2>
+                  <div className="grid grid-cols-5 gap-2">
+                    {paymentMethods.map((method, index) => (
+                      <div key={index} className="flex flex-col items-center p-3 bg-rose-50 rounded-lg hover:bg-rose-100 transition-colors">
+                        <CreditCard className="w-5 h-5 text-rose-400 mb-2" />
+                        <h3 className="text-sm font-medium text-rose-700 text-center">{method.name}</h3>
+                        <p className="text-xs text-rose-600 text-center">{method.description}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>

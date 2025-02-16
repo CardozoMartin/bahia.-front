@@ -114,12 +114,12 @@ const UserProfile = () => {
 
   const Order = ({ order }) => {
     if (!order || !order.productos) return null;
-
+  
     const total = order.productos.reduce((sum, prod) => {
       if (!prod?.productoId?.precio || !prod.cantidad) return sum;
       return sum + (prod.productoId.precio * prod.cantidad);
     }, 0);
-
+  
     const formatDate = (dateString) => {
       try {
         return new Date(dateString).toLocaleDateString('es-ES', {
@@ -131,13 +131,38 @@ const UserProfile = () => {
         return 'Fecha no disponible';
       }
     };
-
+  
     const statusColors = {
       'pendiente': 'bg-amber-100 text-amber-700',
       'rechazado': 'bg-rose-100 text-rose-700',
       'aceptado': 'bg-emerald-100 text-emerald-700'
     };
-
+  
+    const PaymentStatus = () => {
+      // Si el pago está confirmado
+      if (order.modoPago === 'aceptado' || (order.estado === 'aceptado' && order.estadoPago === 'pagado')) {
+        return (
+          <div className="flex items-center gap-2 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full">
+            <CreditCard className="w-4 h-4" />
+            <span className="text-sm">Pedido Pagado</span>
+          </div>
+        );
+      }
+      
+      // Si el pago está pendiente
+      if (order.estadoPago === 'pendiente') {
+        const paymentMethod = order.modoPago === 'transferencia' ? 'Transferencia' : 'Mercado Pago';
+        return (
+          <div className="flex items-center gap-2 px-3 py-1 bg-amber-100 text-amber-700 rounded-full">
+            <CreditCard className="w-4 h-4" />
+            <span className="text-sm">Pago Pendiente - {paymentMethod}</span>
+          </div>
+        );
+      }
+      
+      return null;
+    };
+  
     return (
       <div className="mb-6 bg-white rounded-xl overflow-hidden shadow-sm border border-neutral-100">
         <div className="p-4 flex items-center justify-between">
@@ -146,6 +171,7 @@ const UserProfile = () => {
               {order.estado.charAt(0).toUpperCase() + order.estado.slice(1)}
             </span>
             <span className="text-sm text-neutral-500">{formatDate(order.createdAt)}</span>
+            <PaymentStatus />
           </div>
           <button
             onClick={() => setExpandedOrder(expandedOrder === order._id ? null : order._id)}
