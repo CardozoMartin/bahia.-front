@@ -101,17 +101,10 @@ const ProductDetail = () => {
       
     },
     {
-      name: 'Rapi Pago',
-      
-    },
-    {
       name: 'Pago Fácil',
       
     },
-    {
-      name: 'Tarjeta de Crédito',
-      
-    }
+  
   ];
 
   if (isLoading) {
