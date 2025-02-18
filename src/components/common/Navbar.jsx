@@ -73,7 +73,6 @@ const navigate = useNavigate()
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-8">
               <Link to="/" className="nav-link text-rose-700 hover:text-rose-900 transition-colors font-light">Inicio</Link>
-              <Link to="/productall" className="nav-link text-rose-700 hover:text-rose-900 transition-colors font-light">Productos</Link>
               <Link to="/help" className="nav-link text-rose-700 hover:text-rose-900 transition-colors font-light">Ayuda</Link>
               <Link to="/contact" className="nav-link text-rose-700 hover:text-rose-900 transition-colors font-light">Contáctanos</Link>
             </div>
@@ -200,13 +199,6 @@ const navigate = useNavigate()
                   onClick={toggleMobileMenu}
                 >
                   Inicio
-                </Link>
-                <Link
-                  to="/productos"
-                  className="text-lg font-serif text-rose-700 hover:text-rose-900 transition-colors"
-                  onClick={toggleMobileMenu}
-                >
-                  Productos
                 </Link>
                 <Link
                   to="/help"

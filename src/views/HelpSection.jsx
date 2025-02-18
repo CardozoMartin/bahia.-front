@@ -70,7 +70,7 @@ const HelpSection = () => {
   return (
     <>
     <Navbar></Navbar>
-    <div className="min-h-screen bg-gradient-to-b from-rose-50 to-pink-50 py-12">
+    <div className="min-h-screen pt-30 bg-gradient-to-b from-rose-50 to-pink-50 py-12">
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-12">
           <h1 className="text-3xl font-serif text-rose-800 mb-4">Centro de Ayuda</h1>

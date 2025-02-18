@@ -31,7 +31,7 @@ const ContactSection = () => {
   return (
     <>
     <Navbar></Navbar>
-    <section className="bg-gradient-to-b from-rose-50 to-pink-50 py-16">
+    <section className="bg-gradient-to-b pt-30 from-rose-50 to-pink-50 py-16">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <header className="text-center mb-12">
