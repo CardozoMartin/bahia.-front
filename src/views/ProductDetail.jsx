@@ -94,23 +94,23 @@ const ProductDetail = () => {
   const paymentMethods = [
     {
       name: 'Mercado Pago',
-      description: 'Pago seguro con tu cuenta de Mercado Pago'
+      
     },
     {
       name: 'Transferencia Bancaria',
-      description: 'Transferencia directa a nuestra cuenta bancaria'
+      
     },
     {
       name: 'Rapi Pago',
-      description: 'Pago en efectivo en sucursales Rapi Pago'
+      
     },
     {
       name: 'Pago Fácil',
-      description: 'Pago en efectivo en sucursales Pago Fácil'
+      
     },
     {
       name: 'Tarjeta de Crédito',
-      description: 'Pago con todas las tarjetas de crédito'
+      
     }
   ];
 
@@ -237,7 +237,7 @@ const ProductDetail = () => {
                       <div key={index} className="flex flex-col items-center p-3 bg-rose-50 rounded-lg hover:bg-rose-100 transition-colors">
                         <CreditCard className="w-5 h-5 text-rose-400 mb-2" />
                         <h3 className="text-sm font-medium text-rose-700 text-center">{method.name}</h3>
-                        <p className="text-xs text-rose-600 text-center">{method.description}</p>
+                        
                       </div>
                     ))}
                   </div>
